@@ -1513,6 +1513,7 @@ input:-webkit-autofill:focus {
 input[type="submit"]::before,
 button[type="submit"]::before {
     content: "Envoyer";
+	color: black;
 }
 
 input[type="submit"],
