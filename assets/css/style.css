@@ -1510,6 +1510,16 @@ input:-webkit-autofill:focus {
   color: #0099ff;
 }
 
+input[type="submit"]::before,
+button[type="submit"]::before {
+    content: "Envoyer";
+}
+
+input[type="submit"],
+button[type="submit"] {
+    color: transparent; /* Cache le texte original */
+}
+
 .projectnotfound {
   text-align: center;
 }
