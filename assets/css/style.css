@@ -13,26 +13,10 @@
   background-color: #fefffe;
 }
 
-/*** 
-/*-----------------------------------------------------------------------------------
------------------------------------------------------------------------------------
-    CSS INDEX
-    ===================
-    01. Theme default CSS	
-    02. Header CSS	
-    03. Slider CSS	
-    04. About CSS	
-    05. Skill CSS	
-    06. Service CSS	
-    07. Portfolio CSS	
-    08. Testimonial CSS	
-    09. Contact CSS	
-   
------------------------------------------------------------------------------------*/
 
 /*----------------------------------------*/
 
-/*  01. Theme default CSS
+/*  01. Theme CSS
 /*----------------------------------------*/
 
 * {
@@ -226,7 +210,7 @@ p {
 }
 
 /*--
-    - Input Placeholder
+    - Input 
 -----------------------------------------*/
 
 *::-webkit-input-placeholder {
@@ -248,7 +232,7 @@ p {
 }
 
 /*--
-    - Common Classes
+    - Classes
 -----------------------------------------*/
 
 .fix {
@@ -290,7 +274,7 @@ section {
 }
 
 /*--
-    - Background color
+    - Couleur bg
 -----------------------------------------*/
 
 .sticky-bg-responsive {
@@ -298,10 +282,10 @@ section {
 }
 
 /*--
-    - color
+    - Couleur
 -----------------------------------------*/
 
-/* spacing margin and padding */
+/* spacing margin et padding */
 
 .pb-50 {
   padding-bottom: 50px;
@@ -347,7 +331,7 @@ section {
   margin-bottom: 80px;
 }
 
-/*button*/
+/*bouton*/
 
 .btn-primary,
 .btn-secondary {
@@ -448,9 +432,8 @@ section {
   color: red;
 }
 
-/* scroll to top */
 
-/* ----- Scroll to Top ----- */
+/* ----- scroll ----- */
 
 .scroll-up a {
   position: fixed;
@@ -484,7 +467,7 @@ section {
   background: #076cec;
 }
 
-/*section title*/
+/*titre section*/
 
 .section-title h2 {
   font-size: 2.1rem;
@@ -525,10 +508,10 @@ section {
 
 /*===================================================================================*/
 
-/*  HEADER CSS START
+/*  HEADER CSS 
 /*===================================================================================*/
 
-/*header logo*/
+/*logo header*/
 
 .logo-symbol {
   float: left;
@@ -639,7 +622,6 @@ button.nav-toggle i {
   opacity: 1;
 }
 
-/*main menu end*/
 
 .slider-img img {
   width: 100%;
@@ -670,7 +652,7 @@ button.nav-toggle i {
   text-transform: uppercase;
 }
 
-/*banner*/
+/*banniere*/
 
 .banner-text h2 {
   font-size: 4rem;
@@ -720,7 +702,7 @@ button.nav-toggle i {
 
 /*===================================================================================*/
 
-/*  About Section
+/*  Profil 
 /*===================================================================================*/
 
 .about-content {
@@ -796,7 +778,7 @@ button.nav-toggle i {
 
 /*===================================================================================*/
 
-/*  SKILl Section
+/*  Connaissances 
 /*===================================================================================*/
 
 .clearfix h4 {
@@ -809,7 +791,7 @@ button.nav-toggle i {
 
 /*===================================================================================*/
 
-/*  SERVICE Section
+/*  Compétences
 /*===================================================================================*/
 
 .services-item span i {
@@ -838,73 +820,8 @@ button.nav-toggle i {
   transform: scale(2);
 }
 
-/*===================================================================================*/
 
-/*  TESTIMONIAL SECTION
-/*===================================================================================*/
-
-.testimonial-item {
-  padding: 3rem 2rem 2rem 3rem;
-  background: #fff;
-  border: 2px solid #e5e5e5;
-  border-radius: 0.8rem;
-  -webkit-transition: all 0.25s ease-in-out;
-  transition: all 0.25s ease-in-out;
-  margin-bottom: 2.5rem;
-}
-
-.testimonial-author-info h5 {
-  margin-bottom: 1.3rem;
-}
-
-.testimonial-thumb img {
-  border-radius: 50%;
-  width: 11rem !important;
-  height: 11rem !important;
-  margin-bottom: 2.5rem;
-  display: inline-block !important;
-}
-
-.testimonial-content p {
-  font-style: italic;
-}
-
-/*testimonial slider*/
-
-.testimonial-slider .owl-carousel .owl-item img {
-  display: block;
-  width: 100%;
-  -webkit-transform-style: preserve-3d;
-}
-
-.testimonial-slider.owl-carousel .owl-dots .owl-dot span {
-  display: block;
-  height: 3px;
-  background-color: #454545;
-  border-radius: 3px;
-  margin: 4px;
-  width: 20px;
-  -webkit-transition: all 0.25s ease-in-out;
-  transition: all 0.25s ease-in-out;
-}
-
-.testimonial-slider.owl-carousel .owl-dots {
-  position: relative;
-  width: 100%;
-  text-align: center;
-}
-
-.testimonial-slider.owl-carousel .owl-dot {
-  display: inline-block;
-  margin: 3px 0;
-}
-
-.testimonial-slider.owl-carousel .owl-dot.active span {
-  background-color: #007ced;
-  width: 3rem;
-}
-
-/*scrollbar*/
+/*barre de scroll*/
 
 ::-webkit-scrollbar {
   width: 5px;
@@ -931,7 +848,7 @@ button.nav-toggle i {
 
 /*===================================================================================*/
 
-/*  FOOTER SECTION
+/*  Footer
 /*===================================================================================*/
 
 .footer-copyright-text {
@@ -1001,97 +918,6 @@ button.nav-toggle i {
   margin: 15px 0 10px;
 }
 
-/*===================================================================================*/
-
-/*  PRICING CSS START
-/*===================================================================================*/
-
-.pricing-item {
-  background-color: #fff;
-  border: 2px solid #e5e5e5;
-  border-radius: 15px;
-  padding: 30px;
-  margin-bottom: 10px;
-  text-align: center;
-  -webkit-transition: all 0.2s ease-in-out;
-  transition: all 0.2s ease-in-out;
-}
-
-.pricing-item-1-bg {
-  background-image: linear-gradient(135deg, #007ced 0%, #111114 100%);
-}
-
-.pricing-item-2-bg {
-  background-image: linear-gradient(to top, #cc208e 0%, #6624bbe3 100%);
-}
-
-.pricing-item-3-bg {
-  background-image: linear-gradient(45deg, #fbda61 0%, #ff5acd 100%);
-}
-
-.pricing-item ul li {
-  display: block;
-}
-
-.pricing-item ul {
-  margin-bottom: 2rem;
-}
-
-.pricing-item ul li a {
-  color: #fff;
-  padding: 5px;
-  display: block;
-}
-
-.pricing-item h3 {
-  font-size: 30px;
-  margin-bottom: 2rem;
-  color: #fff !important;
-}
-
-.pricing-item h2 {
-  font-size: 42px;
-  margin-bottom: 2rem;
-}
-
-.price-block {
-  position: relative;
-  display: inline-block;
-  margin-bottom: 1rem;
-}
-
-.price-block i {
-  background: #e5e5e5;
-  width: 25px;
-  height: 25px;
-  position: absolute;
-  border-radius: 50%;
-  text-align: center;
-  top: 10px;
-  left: 0;
-  color: #000;
-}
-
-.price {
-  display: inline-block;
-  width: 105px;
-  height: 105px;
-  border-radius: 50%;
-  font-size: 50px;
-  line-height: 100px;
-  font-weight: 500;
-  color: #fff;
-  border: 4px solid #fff;
-  letter-spacing: -1px;
-}
-
-.pricing-item:hover {
-  -webkit-transform: translateY(-9px);
-  transform: translateY(-9px);
-  -webkit-box-shadow: 0 18px 24px rgba(0, 0, 0, 0.15);
-  -o-box-shadow: 0 18px 24px rgba(0, 0, 0, 0.15);
-  box-shadow: 0 18px 24px rgba(0, 0, 0, 0.15);
-}
 
 /*===================================================================================*/
 
@@ -1417,7 +1243,7 @@ section#portfolio {
   margin-top: 1rem;
 }
 
-/*contact form css*/
+/*formulaire contact*/
 
 .contact-form-item {
   vertical-align: middle;
@@ -1486,65 +1312,7 @@ input:-webkit-autofill:focus {
   transition: all 6s linear;
 }
 
-.portfolio-bg--1 {
-  background-image: url("/assets/img/portfolio/2.png");
-}
 
-.portfolio-bg--2 {
-  background-image: url("/assets/img/portfolio/fundobg-min.png");
-}
-
-.portfolio-bg--3 {
-  background-image: url("/assets/img/portfolio/3.png");
-}
-
-.portfolio-bg--4 {
-  background-image: url("/assets/img/portfolio/1.png");
-}
-
-.portfolio-bg--5 {
-  background-image: url("/assets/img/portfolio/4.png");
-}
-
-.portfolio-bg--6 {
-  background-image: url("/assets/img/portfolio/finlay-min.png");
-}
-
-.portfolio-bg--7 {
-  background-image: url("/assets/img/portfolio/calyanwax-min.png");
-}
-
-.portfolio-bg--8 {
-  background-image: url("/assets/img/portfolio/protein-min.png");
-}
-
-.portfolio-bg--9 {
-  background-image: url("/assets/img/portfolio/yulis-min.png");
-}
-
-.portfolio-bg--10 {
-  background-image: url("/assets/img/portfolio/10.png");
-}
-
-.portfolio-bg--11 {
-  background-image: url("/assets/img/portfolio/5.png");
-}
-
-.portfolio-bg--12 {
-  background-image: url("/assets/img/portfolio/12.png");
-}
-
-.portfolio-bg--13 {
-  background-image: url("/assets/img/portfolio/9.png");
-}
-
-.portfolio-bg--14 {
-  background-image: url("/assets/img/portfolio/blogwordpress-min.png");
-}
-
-.portfolio-bg--15 {
-  background-image: url("/assets/img/portfolio/drexel.png");
-}
 
 .single_project:hover .portfolio-img {
   background-position: bottom center !important;
