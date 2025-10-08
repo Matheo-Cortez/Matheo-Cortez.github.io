@@ -1,0 +1,2087 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Portfolio de Mathéo Cortez - Développeur Informatique</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: { primary: "#4F46E5", secondary: "#10B981" },
+            borderRadius: {
+              none: "0px",
+              sm: "4px",
+              DEFAULT: "8px",
+              md: "12px",
+              lg: "16px",
+              xl: "20px",
+              "2xl": "24px",
+              "3xl": "32px",
+              full: "9999px",
+              button: "8px",
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
+    />
+    <style>
+      :where([class^="ri-"])::before { content: "\f3c2"; }
+      body {
+      font-family: 'Poppins', sans-serif;
+      scroll-behavior: smooth;
+      }
+      .floating {
+      animation: floating 3s ease-in-out infinite;
+      }
+      @keyframes floating {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-15px); }
+      100% { transform: translateY(0px); }
+      }
+      .skill-logo {
+      animation: fadeInOut 8s ease-in-out infinite;
+      opacity: 0;
+      transform: scale(0.8);
+      }
+      @keyframes fadeInOut {
+      0% { opacity: 0; transform: scale(0.8); }
+      20% { opacity: 1; transform: scale(1); }
+      80% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(0.8); }
+      }
+      .skill-logo:nth-child(1) { animation-delay: 0s; }
+      .skill-logo:nth-child(2) { animation-delay: 1s; }
+      .skill-logo:nth-child(3) { animation-delay: 2s; }
+      .skill-logo:nth-child(4) { animation-delay: 3s; }
+      .skill-logo:nth-child(5) { animation-delay: 4s; }
+      .skill-logo:nth-child(6) { animation-delay: 5s; }
+      .wave-bg {
+      background: linear-gradient(90deg, rgba(79, 70, 229, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%);
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+      }
+      .wave-bg::before, .wave-bg::after {
+      content: "";
+      position: absolute;
+      width: 300%;
+      height: 300%;
+      top: -100%;
+      left: -100%;
+      background: radial-gradient(ellipse at center, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 70%);
+      animation: wave 15s infinite linear;
+      }
+      .wave-bg::after {
+      animation-delay: -5s;
+      animation-duration: 20s;
+      opacity: 0.5;
+      }
+      @keyframes wave {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+      }
+      .tortue-chart {
+      position: relative;
+      width: 300px;
+      height: 300px;
+      }
+      .upside-down {
+        transform: rotate(180deg);
+        transition: transform 0.6s ease-in-out;
+      }
+
+      .tortue-chart .axis {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 100%;
+      height: 1px;
+      transform-origin: center;
+      }
+      .tortue-chart .axis-1 { transform: translate(-50%, -50%) rotate(0deg); }
+      .tortue-chart .axis-2 { transform: translate(-50%, -50%) rotate(36deg); }
+      .tortue-chart .axis-3 { transform: translate(-50%, -50%) rotate(72deg); }
+      .tortue-chart .axis-4 { transform: translate(-50%, -50%) rotate(108deg); }
+      .tortue-chart .axis-5 { transform: translate(-50%, -50%) rotate(144deg); }
+      .tortue-chart .level {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      border: 1px dashed rgba(79, 70, 229, 0.3);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      }
+      .tortue-chart .level-1 { width: 60px; height: 60px; }
+      .tortue-chart .level-2 { width: 120px; height: 120px; }
+      .tortue-chart .level-3 { width: 180px; height: 180px; }
+      .tortue-chart .level-4 { width: 240px; height: 240px; }
+      .tortue-chart .level-5 { width: 300px; height: 300px; }
+      .tortue-chart .point {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background-color: #4F46E5;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      }
+      .tortue-chart .label {
+      position: absolute;
+      font-size: 12px;
+      font-weight: 500;
+      white-space: nowrap;
+      }
+      .tortue-chart .value-area {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 300px;
+      height: 300px;
+      transform: translate(-50%, -50%);
+      clip-path: polygon(50% 50%, var(--p1-x) var(--p1-y), var(--p2-x) var(--p2-y), var(--p3-x) var(--p3-y), var(--p4-x) var(--p4-y), var(--p5-x) var(--p5-y), var(--p1-x) var(--p1-y));
+      background-color: rgba(79, 70, 229, 0.2);
+      }
+      .projetCarte {
+      transition: all 0.3s ease;
+      }
+      .projetCarte:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+      }
+      .projetTag {
+      background-color: rgba(79, 70, 229, 0.1);
+      color: #4F46E5;
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      margin-right: 0.5rem;
+      margin-bottom: 0.5rem;
+      }
+      .projetTag i {
+      margin-right: 0.25rem;
+      }
+      .projetModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 50;
+      overflow-y: auto;
+      padding: 2rem;
+      }
+      .cmdModal {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80%;
+      max-width: 600px;
+      background-color: #1E1E1E;
+      color: #FFFFFF;
+      border-radius: 8px;
+      z-index: 100;
+      overflow: hidden;
+      }
+      .cmdHeader {
+      background-color: #333333;
+      padding: 0.5rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      }
+      .cmdContent {
+      padding: 1rem;
+      height: 300px;
+      overflow-y: auto;
+      font-family: monospace;
+      }
+      .cmdInput {
+      display: flex;
+      align-items: center;
+      padding: 0.5rem 1rem;
+      border-top: 1px solid #333333;
+      }
+      .cmdInput span {
+      color: #10B981;
+      margin-right: 0.5rem;
+      }
+      .cmdInput input {
+      background-color: transparent;
+      border: none;
+      color: #FFFFFF;
+      flex-grow: 1;
+      outline: none;
+      font-family: monospace;
+      }
+      .disponible {
+      background-color: rgba(16, 185, 129, 0.1);
+      color: #10B981;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      display: none;
+      }
+      .nonDisponible {
+      background-color: rgba(239, 68, 68, 0.1);
+      color: #EF4444;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      display: visible;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="sticky top-0 bg-white shadow-md z-40">
+      <div
+        class="container mx-auto px-4 py-4 flex justify-between items-center"
+      >
+        <a href="#" class="text-2xl text-primary"
+          >Mathéo Cortez</a
+        >
+        <nav class="hidden md:flex space-x-6">
+          <a
+            href="#presentation"
+            class="text-gray-700 hover:text-primary transition-colors"
+            >Présentation</a
+          >
+          <a
+            href="#formations"
+            class="text-gray-700 hover:text-primary transition-colors"
+            >Formations</a
+          >
+          <a
+            href="#competences"
+            class="text-gray-700 hover:text-primary transition-colors"
+            >Compétences</a
+          >
+          <a
+            href="#projets"
+            class="text-gray-700 hover:text-primary transition-colors"
+            >Projets</a
+          >
+          <a
+            href="#cv"
+            class="text-gray-700 hover:text-primary transition-colors"
+            >CV</a
+          >
+          <a
+            href="#contact"
+            class="text-gray-700 hover:text-primary transition-colors"
+            >Contact</a
+          >
+        </nav>
+        <div class="hidden md:flex space-x-4">
+          <a
+            href="CV_Cortez_Matheo.pdf"
+            class="bg-white text-primary border border-primary px-4 py-2 !rounded-button hover:bg-primary hover:text-white transition-colors whitespace-nowrap"
+          >
+            <i class="ri-download-line mr-1"></i> Télécharger CV
+          </a>
+          <a
+            href="#contact"
+            class="bg-primary text-white px-4 py-2 !rounded-button hover:bg-primary/90 transition-colors whitespace-nowrap"
+          >
+            <i class="ri-mail-line mr-1"></i> Me contacter
+          </a>
+        </div>
+        <button
+          class="md:hidden w-10 h-10 flex items-center justify-center text-gray-700"
+          id="menuToggle"
+        >
+          <i class="ri-menu-line ri-lg"></i>
+        </button>
+      </div>
+      <div
+        id="mobileMenu"
+        class="hidden md:hidden bg-white shadow-lg absolute w-full"
+      >
+        <div class="container mx-auto px-4 py-4 flex flex-col space-y-4">
+          <a
+            href="#presentation"
+            class="text-gray-700 hover:text-primary transition-colors py-2"
+            >Présentation</a
+          >
+          <a
+            href="#formations"
+            class="text-gray-700 hover:text-primary transition-colors py-2"
+            >Formations</a
+          >
+          <a
+            href="#competences"
+            class="text-gray-700 hover:text-primary transition-colors py-2"
+            >Compétences</a
+          >
+          <a
+            href="#projets"
+            class="text-gray-700 hover:text-primary transition-colors py-2"
+            >Projets</a
+          >
+          <a
+            href="#cv"
+            class="text-gray-700 hover:text-primary transition-colors py-2"
+            >CV</a
+          >
+          <a
+            href="#contact"
+            class="text-gray-700 hover:text-primary transition-colors py-2"
+            >Contact</a
+          >
+          <div class="flex flex-col space-y-2">
+            <a
+              href="CV_Cortez_Matheo.pdf"
+              class="bg-white text-primary border border-primary px-4 py-2 !rounded-button hover:bg-primary hover:text-white transition-colors text-center whitespace-nowrap"
+            >
+              <i class="ri-download-line mr-1"></i> Télécharger CV
+            </a>
+            <a
+              href="#contact"
+              class="bg-primary text-white px-4 py-2 !rounded-button hover:bg-primary/90 transition-colors text-center whitespace-nowrap"
+            >
+              <i class="ri-mail-line mr-1"></i> Me contacter
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+    <main>
+      <!-- Section Présentation -->
+      <section id="presentation" class="relative py-20 overflow-hidden">
+        <div class="wave-bg"></div>
+        <div class="container mx-auto px-4">
+          <div class="flex flex-col md:flex-row items-center mt-8">
+            <div class="md:w-1/2 mb-10 md:mb-0">
+              <h1 class="text-4xl md:text-5xl font-bold mb-4">Mathéo Cortez</h1>
+              <h2 class="text-xl md:text-2xl text-gray-600 mb-6">
+                Développeur Full-Stack • 20 ans
+              </h2>
+              <p class="text-gray-700 mb-8 text-lg">
+                Étudiant passionné en BUT Informatique, je développe des
+                applications web et logicielles.
+              </p>
+              <div class="flex flex-wrap gap-4">
+                <a
+                  href="#contact"
+                  class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-primary/90 transition-colors whitespace-nowrap"
+                >
+                  <i class="ri-mail-line mr-2"></i> Me contacter
+                </a>
+                <a
+                  href="CV_Cortez_Matheo.pdf"
+                  class="bg-white text-primary border border-primary px-6 py-3 !rounded-button hover:bg-primary hover:text-white transition-colors whitespace-nowrap"
+                >
+                  <i class="ri-download-line mr-2"></i> Télécharger CV
+                </a>
+              </div>
+            </div>
+            <div class="md:w-1/2 flex justify-center relative">
+              <div class="relative w-64 h-64 md:w-80 md:h-80">
+                <div
+                  class="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full"
+                ></div>
+                <img
+                  src="images/photo.jpg"
+                  alt="Mathéo Cortez"
+                  class="w-full h-full object-cover rounded-full border-4 border-white shadow-lg floating"
+                />
+                <div
+                  class="absolute -top-4 -right-4 w-12 h-12 bg-white rounded-full shadow-md flex items-center justify-center skill-logo"
+                >
+                  <i class="ri-html5-fill ri-xl text-[#E34F26]"></i>
+                </div>
+                <div
+                  class="absolute top-1/4 -right-8 w-12 h-12 bg-white rounded-full shadow-md flex items-center justify-center skill-logo"
+                >
+                  <i class="ri-css3-fill ri-xl text-[#1572B6]"></i>
+                </div>
+                <div
+                  class="absolute top-3/4 -right-4 w-12 h-12 bg-white rounded-full shadow-md flex items-center justify-center skill-logo"
+                >
+                  <i class="ri-javascript-fill ri-xl text-[#F7DF1E]"></i>
+                </div>
+                <div
+                  class="absolute -bottom-4 right-1/4 w-12 h-12 bg-white rounded-full shadow-md flex items-center justify-center skill-logo"
+                >
+                  <i class="ri-php-fill ri-xl text-[#3776AB]"></i>
+                </div>
+                <div
+                  class="absolute -bottom-4 -left-4 w-12 h-12 bg-white rounded-full shadow-md flex items-center justify-center skill-logo"
+                >
+                  <i class="ri-java-fill ri-xl text-[#007396]"></i>
+                </div>
+                <div
+                  class="absolute top-1/4 -left-8 w-12 h-12 bg-white rounded-full shadow-md flex items-center justify-center skill-logo"
+                >
+                  <i class="ri-database-2-fill ri-xl text-[#4479A1]"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- Section Formations -->
+      <section id="formations" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4">
+          <h2 class="text-3xl font-bold text-center mb-16">Formations</h2>
+          <div class="relative">
+            <div
+              class="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-gray-200"
+            ></div>
+            <div class="space-y-12">
+              <div class="relative">
+                <div
+                  class="absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-primary border-4 border-white"
+                ></div>
+                <div
+                  class="ml-auto mr-8 md:mr-auto md:ml-8 md:w-5/12 p-6 bg-white rounded shadow-md relative"
+                >
+                  <div
+                    class="absolute top-6 -left-8 hidden md:block w-8 h-4 bg-white clip-path-triangle"
+                  ></div>
+                  <span
+                    class="inline-block px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full mb-2"
+                    >2023 - Présent</span
+                  >
+                  <h3 class="text-xl font-semibold mb-2">BUT Informatique</h3>
+                  <p class="text-gray-600 mb-2">IUT de Lannion - France</p>
+                  <p class="text-gray-700">
+                    Formation complète en développement informatique, bases de
+                    données, réseaux et systèmes.
+                  </p>
+                </div>
+              </div>
+              <div class="relative">
+                <div
+                  class="absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-primary border-4 border-white"
+                ></div>
+                <div
+                  class="mr-auto ml-8 md:ml-auto md:mr-8 md:w-5/12 p-6 bg-white rounded shadow-md relative"
+                >
+                  <div
+                    class="absolute top-6 -right-8 hidden md:block w-8 h-4 bg-white clip-path-triangle-right"
+                  ></div>
+                  <span
+                    class="inline-block px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full mb-2"
+                    >2025 - 2 mois</span
+                  >
+                  <h3 class="text-xl font-semibold mb-2">
+                    Stage - Agence iStudio
+                  </h3>
+                  <p class="text-gray-600 mb-2">Cholet - France</p>
+                  <p class="text-gray-700">
+                    Formation en développement web front-end. Apprentissage du CMS WordPress.
+                  </p>
+                </div>
+              </div>
+              <div class="relative">
+                <div
+                  class="absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-primary border-4 border-white"
+                ></div>
+                <div
+                  class="ml-auto mr-8 md:mr-auto md:ml-8 md:w-5/12 p-6 bg-white rounded shadow-md relative"
+                >
+                  <div
+                    class="absolute top-6 -left-8 hidden md:block w-8 h-4 bg-white clip-path-triangle"
+                  ></div>
+                  <span
+                    class="inline-block px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full mb-2"
+                    >Été 2024</span
+                  >
+                  <h3 class="text-xl font-semibold mb-2">
+                    CDD - Gifi (Commerce)
+                  </h3>
+                  <p class="text-gray-600 mb-2">
+                    Cholet - France
+                  </p>
+                  <p class="text-gray-700">
+                    Manutention, Caisse, mise en rayon, étiquettage, contact client.
+                  </p>
+                </div>
+              </div>
+              <div class="relative">
+                <div
+                  class="absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-primary border-4 border-white"
+                ></div>
+                <div
+                  class="mr-auto ml-8 md:ml-auto md:mr-8 md:w-5/12 p-6 bg-white rounded shadow-md relative"
+                >
+                  <div
+                    class="absolute top-6 -right-8 hidden md:block w-8 h-4 bg-white clip-path-triangle-right"
+                  ></div>
+                  <span
+                    class="inline-block px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full mb-2"
+                    >2020 - 2023</span
+                  >
+                  <h3 class="text-xl font-semibold mb-2">
+                    Baccalauréat général
+                  </h3>
+                  <p class="text-gray-600 mb-2">Lycée Fernaud Renaudeau à Cholet - France</p>
+                  <p class="text-gray-700">
+                    Mention Assez Bien
+                    Spécialités : Mathématiques et NSI
+                  </p>
+                </div>
+              </div>
+              <div class="relative">
+                <div
+                  class="absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-primary border-4 border-white"
+                ></div>
+                <div
+                  class="ml-auto mr-8 md:mr-auto md:ml-8 md:w-5/12 p-6 bg-white rounded shadow-md relative"
+                >
+                  <div
+                    class="absolute top-6 -left-8 hidden md:block w-8 h-4 bg-white clip-path-triangle"
+                  ></div>
+                  <span
+                    class="inline-block px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full mb-2"
+                    >2019 - 2 semaines</span
+                  >
+                  <h3 class="text-xl font-semibold mb-2">Stage - Gifi (Commerce)</h3>
+                  <p class="text-gray-600 mb-2">Cholet - France</p>
+                  <p class="text-gray-700">
+                    Assistance des employés, déballage de carton et mise en rayon de produits.
+                  </p>
+                </div>
+              </div>
+              <div class="relative">
+                <div
+                  class="absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-primary border-4 border-white"
+                ></div>
+                <div
+                  class="mr-auto ml-8 md:ml-auto md:mr-8 md:w-5/12 p-6 bg-white rounded shadow-md relative"
+                >
+                  <div
+                    class="absolute top-6 -right-8 hidden md:block w-8 h-4 bg-white clip-path-triangle-right"
+                  ></div>
+                  <span
+                    class="inline-block px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full mb-2"
+                    >2018 - 2 semaines</span
+                  >
+                  <h3 class="text-xl font-semibold mb-2">
+                    Stage - Médiapilote
+                  </h3>
+                  <p class="text-gray-600 mb-2">Cholet - France</p>
+                  <p class="text-gray-700">
+                    Observation de la conception d’un site web en direct, Découverte des différents rôles d’une équipe de conception et conception de code HTML/CSS.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- Section Compétences -->
+      <section id="competences" class="py-20">
+        <div class="container mx-auto px-4">
+          <h2 class="text-3xl font-bold text-center mb-16">Compétences</h2>
+          <div class="flex flex-col lg:flex-row gap-16">
+            <div class="lg:w-1/2">
+              <h3 class="text-2xl font-semibold mb-8 text-center">
+                Hard Skills
+              </h3>
+              <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+                <div
+                  class="flex flex-col items-center p-4 bg-white rounded shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <div
+                    class="w-12 h-12 flex items-center justify-center text-[#E34F26] mb-2"
+                  >
+                    <i class="ri-html5-fill ri-2x"></i>
+                  </div>
+                  <span class="text-sm font-medium">HTML</span>
+                </div>
+                <div
+                  class="flex flex-col items-center p-4 bg-white rounded shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <div
+                    class="w-12 h-12 flex items-center justify-center text-[#1572B6] mb-2"
+                  >
+                    <i class="ri-css3-fill ri-2x"></i>
+                  </div>
+                  <span class="text-sm font-medium">CSS</span>
+                </div>
+                <div
+                  class="flex flex-col items-center p-4 bg-white rounded shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <div
+                    class="w-12 h-12 flex items-center justify-center text-[#F7DF1E] mb-2"
+                  >
+                    <i class="ri-javascript-fill ri-2x"></i>
+                  </div>
+                  <span class="text-sm font-medium">JavaScript</span>
+                </div>
+                <div
+                  class="flex flex-col items-center p-4 bg-white rounded shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <div
+                    class="w-12 h-12 flex items-center justify-center text-[#007396] mb-2"
+                  >
+                    <i class="ri-java-fill ri-2x"></i>
+                  </div>
+                  <span class="text-sm font-medium">Java/JavaFX</span>
+                </div>
+                <div
+                  class="flex flex-col items-center p-4 bg-white rounded shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <div
+                    class="w-12 h-12 flex items-center justify-center text-[#3776AB] mb-2"
+                  >
+                    <i class="ri-python-fill ri-2x"></i>
+                  </div>
+                  <span class="text-sm font-medium">Python</span>
+                </div>
+                <div
+                  class="flex flex-col items-center p-4 bg-white rounded shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <div
+                    class="w-12 h-12 flex items-center justify-center text-[#777BB4] mb-2"
+                  >
+                    <i class="ri-php-fill ri-2x"></i>
+                  </div>
+                  <span class="text-sm font-medium">PHP</span>
+                </div>
+                <div
+                  class="flex flex-col items-center p-4 bg-white rounded shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <div
+                    class="w-12 h-12 flex items-center justify-center text-[#4479A1] mb-2"
+                  >
+                    <i class="ri-database-2-fill ri-2x"></i>
+                  </div>
+                  <span class="text-sm font-medium">SQL</span>
+                </div>
+                <div
+                  class="flex flex-col items-center p-4 bg-white rounded shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <div
+                    class="w-12 h-12 flex items-center justify-center text-[#F05032] mb-2"
+                  >
+                    <i class="ri-git-branch-fill ri-2x"></i>
+                  </div>
+                  <span class="text-sm font-medium">Git/GitHub</span>
+                </div>
+                <div
+                  class="flex flex-col items-center p-4 bg-white rounded shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <div
+                    class="w-12 h-12 flex items-center justify-center text-[#2496ED] mb-2"
+                  >
+                    <i class="ri-docker-fill ri-2x"></i>
+                  </div>
+                  <span class="text-sm font-medium">Docker</span>
+                </div>
+                <div
+                  class="flex flex-col items-center p-4 bg-white rounded shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <div
+                    class="w-12 h-12 flex items-center justify-center text-[#4EAA25] mb-2"
+                  >
+                    <i class="ri-terminal-box-fill ri-2x"></i>
+                  </div>
+                  <span class="text-sm font-medium">Bash</span>
+                </div>
+                <div
+                  class="flex flex-col items-center p-4 bg-white rounded shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <div
+                    class="w-12 h-12 flex items-center justify-center text-[#A8B9CC] mb-2"
+                  >
+                    <i class="ri-code-s-slash-fill ri-2x"></i>
+                  </div>
+                  <span class="text-sm font-medium">C</span>
+                </div>
+                <div
+                  class="flex flex-col items-center p-4 bg-white rounded shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <div
+                    class="w-12 h-12 flex items-center justify-center text-[#21759B] mb-2"
+                  >
+                    <i class="ri-wordpress-fill ri-2x"></i>
+                  </div>
+                  <span class="text-sm font-medium">WordPress</span>
+                </div>
+                <div
+                  class="flex flex-col items-center p-4 bg-white rounded shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <div
+                    class="w-12 h-12 flex items-center justify-center text-[#F24E1E] mb-2"
+                  >
+                    <i class="ri-figma-fill ri-2x"></i>
+                  </div>
+                  <span class="text-sm font-medium">Figma</span>
+                </div>
+              </div>
+            </div>
+            <div class="lg:w-1/2 mt-12 lg:mt-0 flex flex-col">
+              <h3 class="text-2xl font-semibold mb-8 text-center">
+                Soft Skills
+              </h3>
+              <div class="flex justify-center mb-12 flex-shrink-0">
+                <div class="tortue-chart">
+                  <div class="axis axis-1"></div>
+                  <div class="axis axis-2"></div>
+                  <div class="axis axis-3"></div>
+                  <div class="axis axis-4"></div>
+                  <div class="axis axis-5"></div>
+                  <div class="level level-1"></div>
+                  <div class="level level-2"></div>
+                  <div class="level level-3"></div>
+                  <div class="level level-4"></div>
+                  <div class="level level-5"></div>
+                  <div
+                    class="value-area"
+                    style="--p1-x:50%; --p1-y:10%; --p2-x:95%; --p2-y:30%; --p3-x:80%; --p3-y:70%; --p4-x:30%; --p4-y:85%; --p5-x:15%; --p5-y:35%;"
+                  ></div>
+                  <div class="point" style="top:10%; left:50%;"></div>
+                  <div
+                    class="label"
+                    style="top:0%; left:50%; transform:translateX(-50%);"
+                  >
+                    Travail d'équipe
+                  </div>
+                  <div class="point" style="top:30%; left:95%;"></div>
+                  <div class="label" style="top:20%; left:90%;">Autonomie</div>
+                  <div class="point" style="top:70%; left:80%;"></div>
+                  <div class="label" style="top:70%; left:85%;">
+                    Adaptabilité
+                  </div>
+                  <div class="point" style="top:85%; left:30%;"></div>
+                  <div
+                    class="label"
+                    style="top:90%; left:30%; transform:translateX(-50%);"
+                  >
+                    Communication
+                  </div>
+                  <div class="point" style="top:35%; left:15%;"></div>
+                  <div
+                    class="label"
+                    style="top:35%; left:10%; transform:translateX(-100%);"
+                  >
+                    Résolution de problèmes
+                  </div>
+                </div>
+              </div>
+              <div class="space-y-6 flex-grow">
+                <div
+                  class="p-4 bg-white rounded shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <h4 class="font-medium mb-2 flex items-center">
+                    <i class="ri-team-fill text-primary mr-2"></i>
+                    Travail d'équipe
+                  </h4>
+                  <p class="text-gray-700 text-sm">
+                    Excellente capacité à collaborer et à contribuer
+                    efficacement au sein d'une équipe, en valorisant les
+                    compétences de chacun.
+                  </p>
+                </div>
+                <div
+                  class="p-4 bg-white rounded shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <h4 class="font-medium mb-2 flex items-center">
+                    <i class="ri-user-settings-fill text-primary mr-2"></i>
+                    Autonomie
+                  </h4>
+                  <p class="text-gray-700 text-sm">
+                    Capable de travailler de manière indépendante, de prendre
+                    des initiatives et de gérer efficacement mon temps et mes
+                    ressources.
+                  </p>
+                </div>
+                <div
+                  class="p-4 bg-white rounded shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <h4 class="font-medium mb-2 flex items-center">
+                    <i class="ri-refresh-line text-primary mr-2"></i>
+                    Adaptabilité
+                  </h4>
+                  <p class="text-gray-700 text-sm">
+                    Grande capacité à m'adapter rapidement aux changements, aux
+                    nouvelles technologies et aux environnements de travail
+                    variés.
+                  </p>
+                </div>
+                <div
+                  class="p-4 bg-white rounded shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <h4 class="font-medium mb-2 flex items-center">
+                    <i class="ri-message-3-fill text-primary mr-2"></i>
+                    Communication
+                  </h4>
+                  <p class="text-gray-700 text-sm">
+                    Aptitude à communiquer clairement et efficacement, tant à
+                    l'écrit qu'à l'oral, avec des interlocuteurs techniques et
+                    non techniques.
+                  </p>
+                </div>
+                <div
+                  class="p-4 bg-white rounded shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <h4 class="font-medium mb-2 flex items-center">
+                    <i class="ri-lightbulb-fill text-primary mr-2"></i>
+                    Résolution de problèmes
+                  </h4>
+                  <p class="text-gray-700 text-sm">
+                    Approche analytique et créative pour identifier et résoudre
+                    les problèmes complexes de manière efficace et innovante.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- Section Projets -->
+      <section id="projets" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4">
+          <h2 class="text-3xl font-bold text-center mb-6">Projets</h2>
+          <p class="text-gray-600 text-center mb-12 max-w-2xl mx-auto">
+            Découvrez mes réalisations dans différents domaines de
+            l'informatique, des applications web aux logiciels de bureau en
+            passant par des projets personnels.
+          </p>
+          <div class="flex justify-center mb-8">
+            <div class="inline-flex p-1 bg-gray-100 rounded-full">
+              <button
+                class="projetFiltre px-6 py-2 rounded-full bg-primary text-white"
+                data-filter="tous"
+              >
+                Tous
+              </button>
+              <button
+                class="projetFiltre px-6 py-2 rounded-full text-gray-700 hover:bg-gray-200"
+                data-filter="professionnel"
+              >
+                Professionnel
+              </button>
+              <button
+                class="projetFiltre px-6 py-2 rounded-full text-gray-700 hover:bg-gray-200"
+                data-filter="scolaire"
+              >
+                Scolaire
+              </button>
+              <button
+                class="projetFiltre px-6 py-2 rounded-full text-gray-700 hover:bg-gray-200"
+                data-filter="personnel"
+              >
+                Personnel
+              </button>
+            </div>
+          </div>
+          <div
+            class="projetGrille grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          >
+            <!-- Les projets seront générés dynamiquement par JavaScript -->
+          </div>
+          <div class="flex justify-center mt-12">
+            <button
+              id="boutonAfficherPlus"
+              class="bg-white text-primary border border-primary px-6 py-3 !rounded-button hover:bg-primary hover:text-white transition-colors whitespace-nowrap"
+            >
+              <i class="ri-add-line mr-2"></i> Afficher plus de projets
+            </button>
+          </div>
+        </div>
+      </section>
+      <!-- Section CV -->
+      <section id="cv" class="py-20">
+        <div class="container mx-auto px-4">
+          <h2 class="text-3xl font-bold text-center mb-16">Curriculum Vitae</h2>
+          <div class="flex justify-center">
+            <div
+              class="w-full max-w-4xl bg-white rounded shadow-lg overflow-hidden"
+            >
+              <div
+                class="p-6 bg-primary text-white flex justify-between items-center"
+              >
+                <h3 class="text-xl font-semibold">Mon CV complet</h3>
+                <a
+                  href="CV_Cortez_Matheo.pdf"
+                  class="bg-white text-primary px-4 py-2 !rounded-button hover:bg-gray-100 transition-colors whitespace-nowrap"
+                >
+                  <i class="ri-download-line mr-1"></i> Télécharger
+                </a>
+              </div>
+              <div
+                class="p-4 h-[600px] flex items-center justify-center bg-gray-100"
+              >
+                <iframe src="CV_Cortez_Matheo.pdf" class="w-full h-full" frameborder="0">
+                  Votre navigateur ne prend pas en charge les iframes.
+                </iframe>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- Section Contact -->
+      <section id="contact" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4">
+          <h2 class="text-3xl font-bold text-center mb-16">Contact</h2>
+          <div class="flex flex-col lg:flex-row gap-12">
+            <div class="lg:w-1/2">
+              <div class="bg-white rounded shadow-md p-8">
+                <h3 class="text-2xl font-semibold mb-6">
+                  Envoyez-moi un message
+                </h3>
+                <form
+                  action="mailto:matheocrtz2005@gmail.com"
+                  method="POST"
+                  enctype="text/plain"
+                  class="space-y-6"
+                  id="contactForm"
+                >
+                  <div>
+                    <label for="nom" class="block text-gray-700 mb-2"
+                      >Nom complet</label
+                    >
+                    <input
+                      type="text"
+                      id="nom"
+                      name="nom"
+                      required
+                      class="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      placeholder="Votre nom"
+                    />
+                  </div>
+                  <div>
+                    <label for="email" class="block text-gray-700 mb-2"
+                      >Email</label
+                    >
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      required
+                      class="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      placeholder="votre.email@exemple.com"
+                    />
+                  </div>
+                  <div>
+                    <label for="sujet" class="block text-gray-700 mb-2"
+                      >Sujet</label
+                    >
+                    <input
+                      type="text"
+                      id="sujet"
+                      name="sujet"
+                      required
+                      class="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      placeholder="Sujet de votre message"
+                    />
+                  </div>
+                  <div>
+                    <label for="message" class="block text-gray-700 mb-2"
+                      >Message</label
+                    >
+                    <textarea
+                      id="message"
+                      name="message"
+                      rows="5"
+                      required
+                      class="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      placeholder="Votre message..."
+                    ></textarea>
+                  </div>
+                  <button
+                    type="submit"
+                    class="w-full bg-primary text-white px-6 py-3 !rounded-button hover:bg-primary/90 transition-colors whitespace-nowrap"
+                  >
+                    <i class="ri-send-plane-fill mr-2"></i> Envoyer le message
+                  </button>
+                </form>
+                <div
+                  id="successMessage"
+                  class="hidden mt-4 p-4 bg-green-100 text-green-700 rounded"
+                >
+                  Message envoyé avec succès !
+                </div>
+              </div>
+              <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                  const form = document.getElementById("contactForm");
+                  form.addEventListener("submit", function (e) {
+                    e.preventDefault();
+                    const nom = document.getElementById("nom").value;
+                    const email = document.getElementById("email").value;
+                    const sujet = document.getElementById("sujet").value;
+                    const message = document.getElementById("message").value;
+                    const mailtoLink = `mailto:matheocrtz2005@gmail.com?subject=${encodeURIComponent(sujet)}&body=${encodeURIComponent(
+                      `De: ${nom}
+                Email: ${email}
+                Message:
+                ${message}
+                ---
+                Envoyé depuis le formulaire de contact du portfolio`,
+                    )}`;
+                    window.location.href = mailtoLink;
+                    const successMessage = document.getElementById("successMessage");
+                    successMessage.classList.remove("hidden");
+                    form.reset();
+                    setTimeout(() => {
+                      successMessage.classList.add("hidden");
+                    }, 5000);
+                  });
+                });
+              </script>
+            </div>
+            <div class="lg:w-1/2">
+              <div class="bg-white rounded shadow-md p-8 h-full">
+                <h3 class="text-2xl font-semibold mb-6">
+                  Informations de contact
+                </h3>
+                <div class="space-y-6">
+                  <div class="flex items-start">
+                    <div
+                      class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary mr-4"
+                    >
+                      <i class="ri-map-pin-fill ri-lg"></i>
+                    </div>
+                    <div>
+                      <h4 class="font-medium mb-1">Adresse</h4>
+                      <p class="text-gray-600">
+                        5 rue de l'épinette, 49280 Saint-Léger-Sous Cholet, France <br>
+                        25 rue des Hortensias, 22300 Lannion, France
+                      </p>
+                    </div>
+                  </div>
+                  <div class="flex items-start">
+                    <div
+                      class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary mr-4"
+                    >
+                      <i class="ri-mail-fill ri-lg"></i>
+                    </div>
+                    <div>
+                      <h4 class="font-medium mb-1">Email</h4>
+                      <p class="text-gray-600">matheocrtz2005@gmail.com</p>
+                    </div>
+                  </div>
+                  <div class="flex items-start">
+                    <div
+                      class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary mr-4"
+                    >
+                      <i class="ri-phone-fill ri-lg"></i>
+                    </div>
+                    <div>
+                      <h4 class="font-medium mb-1">Téléphone</h4>
+                      <p class="text-gray-600">+33 6 21 29 27 56</p>
+                    </div>
+                  </div>
+                  <div class="flex items-start">
+                    <div
+                      class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary mr-4"
+                    >
+                      <i class="ri-time-fill ri-lg"></i>
+                    </div>
+                    <div>
+                      <h4 class="font-medium mb-1">Statut</h4>
+                      <p class="disponible">Disponible pour un stage</p>
+                      <p class="nonDisponible">Non disponible actuellement</p>
+                    </div>
+                  </div>
+                  <div class="pt-6 border-t border-gray-200">
+                    <h4 class="font-medium mb-4">Réseaux sociaux</h4>
+                    <div class="flex space-x-4">
+                      <a
+                        href="https://www.linkedin.com/in/mathéo-cortez/"
+                        class="w-10 h-10 bg-[#0A66C2]/10 text-[#0A66C2] rounded-full flex items-center justify-center hover:bg-[#0A66C2] hover:text-white transition-colors"
+                      >
+                        <i class="ri-linkedin-fill ri-lg"></i>
+                      </a>
+                      <a
+                        href="https://github.com/Matheo-Cortez"
+                        class="w-10 h-10 bg-[#171515]/10 text-[#171515] rounded-full flex items-center justify-center hover:bg-[#171515] hover:text-white transition-colors"
+                      >
+                        <i class="ri-github-fill ri-lg"></i>
+                      </a>
+                      <a
+                        href="https://www.instagram.com/mathou.ctz/?hl=fr"
+                        class="w-10 h-10 bg-[#E4405F]/10 text-[#E4405F] rounded-full flex items-center justify-center hover:bg-[#E4405F] hover:text-white transition-colors"
+                      >
+                        <i class="ri-instagram-fill ri-lg"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer class="bg-gray-900 text-white py-12">
+      <div class="container mx-auto px-4">
+        <div
+          class="flex flex-col md:flex-row justify-between items-center mb-8"
+        >
+          <a href="#" class="text-2xl text-white mb-6 md:mb-0"
+            >Mathéo Cortez</a
+          >
+          <nav
+            class="flex flex-wrap justify-center gap-x-6 gap-y-2 mb-6 md:mb-0"
+          >
+            <a
+              href="#presentation"
+              class="text-gray-300 hover:text-white transition-colors"
+              >Présentation</a
+            >
+            <a
+              href="#formations"
+              class="text-gray-300 hover:text-white transition-colors"
+              >Formations</a
+            >
+            <a
+              href="#competences"
+              class="text-gray-300 hover:text-white transition-colors"
+              >Compétences</a
+            >
+            <a
+              href="#projets"
+              class="text-gray-300 hover:text-white transition-colors"
+              >Projets</a
+            >
+            <a
+              href="#cv"
+              class="text-gray-300 hover:text-white transition-colors"
+              >CV</a
+            >
+            <a
+              href="#contact"
+              class="text-gray-300 hover:text-white transition-colors"
+              >Contact</a
+            >
+          </nav>
+          <div class="flex space-x-4">
+            <a
+              href="https://www.linkedin.com/in/mathéo-cortez/"
+              class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors"
+            >
+              <i class="ri-linkedin-fill ri-lg"></i>
+            </a>
+            <a
+              href="https://github.com/Matheo-Cortez"
+              class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors"
+            >
+              <i class="ri-github-fill ri-lg"></i>
+            </a>
+            <a
+              href="https://www.instagram.com/mathou.ctz/?hl=fr"
+              class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors"
+            >
+              <i class="ri-instagram-fill ri-lg"></i>
+            </a>
+          </div>
+        </div>
+        <div
+          class="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-gray-800"
+        >
+          <p class="text-gray-400 mb-4 md:mb-0">
+            © 2025 Mathéo Cortez. Tous droits réservés.
+          </p>
+          <div class="flex space-x-4">
+            <a
+              href="CV_Cortez_Matheo.pdf"
+              class="bg-white/10 text-white px-4 py-2 !rounded-button hover:bg-white/20 transition-colors whitespace-nowrap"
+            >
+              <i class="ri-download-line mr-1"></i> Télécharger CV
+            </a>
+            <a
+              href="#contact"
+              class="bg-primary text-white px-4 py-2 !rounded-button hover:bg-primary/90 transition-colors whitespace-nowrap"
+            >
+              <i class="ri-mail-line mr-1"></i> Me contacter
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <!-- Modals -->
+    <div id="projetModal" class="projetModal">
+      <div class="bg-white rounded-lg max-w-4xl mx-auto mt-20 overflow-hidden">
+        <div class="relative">
+          <img id="modalImage" src="" alt="" class="w-full h-64 object-cover" />
+          <button
+            class="absolute top-4 right-4 w-10 h-10 bg-white rounded-full flex items-center justify-center text-gray-700 hover:text-gray-900 transition-colors"
+            id="closeModal"
+          >
+            <i class="ri-close-line ri-lg"></i>
+          </button>
+        </div>
+        <div class="p-6">
+          <h3 id="modalTitle" class="text-2xl font-semibold mb-2"></h3>
+          <div class="flex flex-wrap gap-2 mb-4" id="modalTags"></div>
+          <p id="modalDescription" class="text-gray-700 mb-6"></p>
+          <div class="flex justify-between items-center">
+            <span
+              id="modalCategorie"
+              class="px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full"
+            ></span>
+            <a
+              id="modalGithub"
+              href="#"
+              target="_blank"
+              class="bg-[#171515] text-white px-4 py-2 !rounded-button hover:bg-[#171515]/90 transition-colors whitespace-nowrap"
+            >
+              <i class="ri-github-fill mr-1"></i> Voir sur GitHub
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="cmdModal" class="cmdModal">
+      <div class="cmdHeader">
+        <span>Terminal</span>
+        <button id="closeCmdModal" class="text-white hover:text-gray-300">
+          <i class="ri-close-line"></i>
+        </button>
+      </div>
+      <div class="cmdContent" id="cmdOutput">
+        <p>Bienvenue dans le terminal de Mathéo Cortez!</p>
+        <p>Tapez 'help' pour voir les commandes disponibles.</p>
+      </div>
+      <div class="cmdInput">
+        <span>$</span>
+        <input type="text" id="cmdInput" placeholder="Entrez une commande..." />
+      </div>
+    </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Menu mobile
+        const menuToggle = document.getElementById("menuToggle");
+        const mobileMenu = document.getElementById("mobileMenu");
+        menuToggle.addEventListener("click", function () {
+          mobileMenu.classList.toggle("hidden");
+          if (mobileMenu.classList.contains("hidden")) {
+            menuToggle.innerHTML = '<i class="ri-menu-line ri-lg"></i>';
+          } else {
+            menuToggle.innerHTML = '<i class="ri-close-line ri-lg"></i>';
+          }
+        });
+        // Liens de navigation
+        const navLinks = document.querySelectorAll('a[href^="#"]');
+        navLinks.forEach((link) => {
+          link.addEventListener("click", function (e) {
+            if (mobileMenu && !mobileMenu.classList.contains("hidden")) {
+              mobileMenu.classList.add("hidden");
+              menuToggle.innerHTML = '<i class="ri-menu-line ri-lg"></i>';
+            }
+          });
+        });
+      });
+      // Projets
+      document.addEventListener("DOMContentLoaded", function () {
+        const projets = [
+          {
+            id: 1,
+            titre: "Création d'un Sudoku | SAE 1.01",
+            description:
+              "Le but était de créer un sudoku qui prend une grille en paramètre et qui permet à l'utilisateur de jouer au sudoku sur un terminal.",
+            image:
+              "images/sae101.jpg",
+            categorie: "scolaire",
+            tags: [
+              { nom: "C", icon: "ri-code-s-slash-fill" },
+            ],
+            github: "https://github.com/Matheo-Cortez/SAE1.01",
+            descriptionComplete:
+              "Le but était de créer un sudoku qui prend une grille en paramètre et qui permet à l'utilisateur de jouer au sudoku sur un terminal.",
+          },
+          {
+            id: 2,
+            titre: "Création d'un résolveur de Sudoku | SAE 1.02",
+            description:
+              "Le but était de créer un résolveur de sudoku qui prend une grille en paramètre et qui la remplit lui même sans intervention d'un utilisateur.",
+            image:
+              "images/sae102.jpg",
+            categorie: "scolaire",
+            tags: [
+              { nom: "C", icon: "ri-code-s-slash-fill" },
+            ],
+            github: "https://github.com/Matheo-Cortez/SAE1.02",
+            descriptionComplete:
+              "Le but était de créer un résolveur de sudoku qui prend une grille en paramètre et qui la remplit lui même sans intervention d'un utilisateur.",
+          },
+          {
+            id: 3,
+            titre: "Installation d'un poste de développement | SAE 1.03",
+            description:
+              "L'objectif était d'utiliser docker et php pour générer des documentations automatiques d'une page.",
+            image:
+              "images/sae103.jpg",
+            categorie: "scolaire",
+            tags: [
+              { nom: "PHP", icon: "ri-php-fill" },
+              { nom: "Bash", icon: "ri-terminal-box-fill" },
+              { nom: "Docker", icon: "ri-docker-fill" },
+            ],
+            github: "https://github.com/Matheo-Cortez/SAE1.03",
+            descriptionComplete:
+              "L'objectif était d'utiliser docker et php pour générer des documentations automatiques d'une page.",
+          },
+          {
+            id: 4,
+            titre: "Création d'une base de données | SAE 1.04",
+            description:
+              "L'objectif était de créer une base de donnée avec le programme national comme sujet.",
+            image:
+              "images/sae104.jpg",
+            categorie: "scolaire",
+            tags: [
+              { nom: "SQL", icon: "ri-database-2-fill" },
+            ],
+            github: "https://github.com/Matheo-Cortez/SAE1.04",
+            descriptionComplete:
+              "L'objectif était de créer une base de donnée avec le programme national comme sujet.",
+          },
+          {
+            id: 5,
+            titre: "Codejump",
+            description:
+              "Le but était de réaliser un minigame web dans le style de Doodle Jump, mais version développement informatique.",
+            image:
+              "images/codejump.jpg",
+            categorie: "personnel",
+            tags: [
+              { nom: "JavaScript", icon: "ri-javascript-fill" },
+              { nom: "HTML/CSS", icon: "ri-html5-fill" },
+              { nom: "Tailwind", icon: "ri-tailwind-css-fill" },
+            ],
+            github: "https://github.com/Matheo-Cortez/codejump",
+            descriptionComplete:
+              "Le but était de réaliser un minigame web dans le style de Doodle Jump, mais version développement informatique.",
+          },
+          {
+            id: 6,
+            titre: "Création d'un site de streaming | SAE 1.05",
+            description:
+              "Le but était de créer un site de streaming avec de multiples pages apportant diverses informations.",
+            image:
+              "images/sae105.jpg",
+            categorie: "scolaire",
+            tags: [
+              { nom: "JavaScript", icon: "ri-javascript-fill" },
+              { nom: "HTML/CSS", icon: "ri-html5-fill" },
+            ],
+            github: "https://github.com/Matheo-Cortez/SAE1.05",
+            descriptionComplete:
+              "Le but était de créer un site de streaming avec de multiples pages apportant diverses informations.",
+          },
+          {
+            id: 7,
+            titre: "Environnement économique d'une entreprise | SAE 1.06",
+            description:
+              "Le but était de découvrir l'environnement économique, et la RSE d'une entreprise choisie.",
+            image:
+              "images/sae106.jpg",
+            categorie: "scolaire",
+            tags: [
+              
+            ],
+            github: "https://github.com/Matheo-Cortez/SAE1.06",
+            descriptionComplete:
+              "Le but était de découvrir l'environnement économique, et la RSE d'une entreprise choisie.",
+          },
+          {
+            id: 8,
+            titre: "Création d'une application de gestion | SAE 2.01",
+            description:
+              "Le but était de créer l'interface et les liaisons d'une application de gestion pour une salle de spectacle.",
+            image:
+              "images/sae201.jpg",
+            categorie: "scolaire",
+            tags: [
+              { nom: "Java", icon: "ri-java-fill" },
+              { nom: "JavaFX", icon: "ri-code-box-fill" },
+              { nom: "AI", icon: "ri-brain-fill" },
+            ],
+            github: "https://github.com/Matheo-Cortez/SAE2.01",
+            descriptionComplete:
+              "Le but était de créer l'interface et les liaisons d'une application de gestion pour une salle de spectacle.",
+          },
+          {
+            id: 9,
+            titre: "Postier chinois | SAE 2.02",
+            description:
+              "Le but était de réaliser un programme qui réalise le problème du postier chinois sur un graphe donné.",
+            image:
+              "images/sae202.jpg",
+            categorie: "scolaire",
+            tags: [
+              { nom: "Python", icon: "ri-python-fill" },
+            ],
+            github: "https://github.com/Matheo-Cortez/SAE2.02",
+            descriptionComplete:
+              "Le but était de réaliser un programme qui réalise le problème du postier chinois sur un graphe donné.",
+          },
+          {
+            id: 10,
+            titre: "Installation de services réseaux | SAE 2.03",
+            description:
+              "Le but était de réaliser une suite d'exercice pour apprendre à manier les VM et les réseaux.",
+            image:
+              "images/sae203.jpg",
+            categorie: "scolaire",
+            tags: [
+              { nom: "Apache", icon: "ri-server-fill" },
+              { nom: "SQL", icon: "ri-database-2-fill" },
+              { nom: "PHP", icon: "ri-php-fill" },
+            ],
+            github: "https://github.com/Matheo-Cortez/SAE2.03",
+            descriptionComplete:
+              "Le but était de réaliser une suite d'exercice pour apprendre à manier les VM et les réseaux.",
+          },
+          {
+            id: 11,
+            titre: "Implémentation d'une base de donnée | SAE 2.04",
+            description:
+              "Le but était de créer une base de donnée à partir de fichiers .CSV contenant des datas.",
+            image:
+              "images/sae204.jpg",
+            categorie: "scolaire",
+            tags: [
+              { nom: "SQL", icon: "ri-database-2-fill" },
+            ],
+            github: "https://github.com/Matheo-Cortez/SAE2.04",
+            descriptionComplete:
+              "Le but était de créer une base de donnée à partir de fichiers .CSV contenant des datas.",
+          },
+          {
+            id: 12,
+            titre: "Gestion d'un projet | SAE 2.05",
+            description:
+              "Le but était de simuler la gestion d'un projet de création d'application pour une salle de spectacle.",
+            image:
+              "images/sae205.jpg",
+            categorie: "scolaire",
+            tags: [
+              
+            ],
+            github: "https://github.com/Matheo-Cortez/SAE2.05",
+            descriptionComplete:
+              "Le but était de simuler la gestion d'un projet de création d'application pour une salle de spectacle.",
+          },
+          {
+            id: 13,
+            titre: "Organisation d'un événement de team building | SAE 2.06",
+            description:
+              "Le but était d'organiser un événement de team building pour une entreprise choisie.",
+            image:
+              "images/sae206.jpg",
+            categorie: "scolaire",
+            tags: [
+              
+            ],
+            github: "https://github.com/Matheo-Cortez/SAE2.06",
+            descriptionComplete:
+              "Le but était d'organiser un événement de team building pour une entreprise choisie.",
+          },
+          {
+            id: 14,
+            titre: "BugFinder",
+            description:
+              "Le but était de réaliser un minigame web dans le style du Démineur, mais version développement informatique.",
+            image:
+              "images/bugfinder.jpg",
+            categorie: "personnel",
+            tags: [
+              { nom: "JavaScript", icon: "ri-javascript-fill" },
+              { nom: "HTML/CSS", icon: "ri-html5-fill" },
+              { nom: "Tailwind", icon: "ri-tailwind-css-fill" },
+            ],
+            github: "https://github.com/Matheo-Cortez/bugfinder",
+            descriptionComplete:
+              "Le but était de réaliser un minigame web dans le style du Démineur, mais version développement informatique.",
+          },
+          {
+            id: 15,
+            titre: "2024 Dev Edition",
+            description:
+              "Le but était de réaliser un minigame web dans le style du 2048, mais version développement informatique.",
+            image:
+              "images/2048devedition.jpg",
+            categorie: "personnel",
+            tags: [
+              { nom: "JavaScript", icon: "ri-javascript-fill" },
+              { nom: "HTML/CSS", icon: "ri-html5-fill" },
+              { nom: "Tailwind", icon: "ri-tailwind-css-fill" },
+            ],
+            github: "https://github.com/Matheo-Cortez/2048",
+            descriptionComplete:
+              "Le but était de réaliser un minigame web dans le style du 2048, mais version développement informatique.",
+          },
+          {
+            id: 16,
+            titre: "DevSnake",
+            description:
+              "Le but était de réaliser un minigame web dans le style du Snake, mais version développement informatique.",
+            image:
+              "images/devsnake.jpg",
+            categorie: "personnel",
+            tags: [
+              { nom: "JavaScript", icon: "ri-javascript-fill" },
+              { nom: "HTML/CSS", icon: "ri-html5-fill" },
+              { nom: "Tailwind", icon: "ri-tailwind-css-fill" },
+            ],
+            github: "https://github.com/Matheo-Cortez/snake",
+            descriptionComplete:
+              "Le but était de réaliser un minigame web dans le style du Snake, mais version développement informatique.",
+          },
+          {
+            id: 16,
+            titre: "DevSudoku",
+            description:
+              "Le but était de réaliser un minigame web dans le style du Sudoku, mais version développement informatique.",
+            image:
+              "images/devsudoku.jpg",
+            categorie: "personnel",
+            tags: [
+              { nom: "JavaScript", icon: "ri-javascript-fill" },
+              { nom: "HTML/CSS", icon: "ri-html5-fill" },
+              { nom: "Tailwind", icon: "ri-tailwind-css-fill" },
+            ],
+            github: "https://github.com/Matheo-Cortez/sudoku",
+            descriptionComplete:
+              "Le but était de réaliser un minigame web dans le style du Sudoku, mais version développement informatique.",
+          },
+          {
+            id: 18,
+            titre: "Site web pour association caritative",
+            description:
+              "Site vitrine pour une association humanitaire avec système de dons en ligne et présentation des projets.",
+            image:
+              "https://readdy.ai/api/search-image?query=charity%20organization%20website%20showing%20donation%20system%2C%20project%20showcase%2C%20and%20impact%20stories%2C%20with%20warm%20and%20inviting%20design&width=600&height=400&seq=18&orientation=landscape",
+            categorie: "professionnel",
+            tags: [
+              { nom: "WordPress", icon: "ri-wordpress-fill" },
+              { nom: "PHP", icon: "ri-php-fill" },
+              { nom: "JavaScript", icon: "ri-javascript-fill" },
+            ],
+            github: "#",
+            descriptionComplete:
+              "Site web développé bénévolement pour une association caritative locale. Le site présente l'association, ses missions et ses projets en cours, avec des témoignages et des histoires d'impact. Il intègre un système de dons en ligne sécurisé avec différentes options (don ponctuel, mensuel, parrainage), un blog pour les actualités, et un espace bénévole pour la coordination des actions. Développé avec WordPress, des extensions personnalisées en PHP, et optimisé pour le référencement et l'accessibilité.",
+          },
+          {
+            id: 19,
+            titre: "Jeu de stratégie en tour par tour",
+            description:
+              "Jeu vidéo de stratégie développé en Java avec intelligence artificielle pour les adversaires.",
+            image:
+              "https://readdy.ai/api/search-image?query=turn-based%20strategy%20game%20with%20hexagonal%20grid%20map%2C%20unit%20management%20interface%2C%20and%20resource%20tracking%2C%20with%20fantasy-themed%20graphics&width=600&height=400&seq=19&orientation=landscape",
+            categorie: "personnel",
+            tags: [
+              { nom: "Java", icon: "ri-java-fill" },
+              { nom: "JavaFX", icon: "ri-code-box-fill" },
+              { nom: "AI", icon: "ri-brain-fill" },
+            ],
+            github: "#",
+            descriptionComplete:
+              "Jeu de stratégie en tour par tour développé comme projet personnel pour approfondir mes connaissances en programmation Java et en intelligence artificielle. Le jeu se déroule sur une carte hexagonale où les joueurs doivent gérer des ressources, construire des bâtiments, et commander des unités pour vaincre leurs adversaires. Il inclut plusieurs factions avec des capacités uniques, un système de progression, et des adversaires IA utilisant différentes stratégies. Développé en Java avec JavaFX pour l'interface graphique et des algorithmes personnalisés pour l'IA.",
+          },
+          {
+            id: 20,
+            titre: "Système de gestion de contenu (CMS)",
+            description:
+              "CMS personnalisé permettant de créer et gérer facilement du contenu web sans connaissances techniques.",
+            image:
+              "https://readdy.ai/api/search-image?query=custom%20content%20management%20system%20showing%20admin%20dashboard%2C%20content%20editor%2C%20and%20website%20preview%2C%20with%20modern%20and%20intuitive%20interface&width=600&height=400&seq=20&orientation=landscape",
+            categorie: "scolaire",
+            tags: [
+              { nom: "PHP", icon: "ri-php-fill" },
+              { nom: "MySQL", icon: "ri-database-2-fill" },
+              { nom: "JavaScript", icon: "ri-javascript-fill" },
+            ],
+            github: "#",
+            descriptionComplete:
+              "Système de gestion de contenu (CMS) développé dans le cadre d'un projet universitaire. Le CMS permet aux utilisateurs sans connaissances techniques de créer et gérer facilement du contenu web via une interface intuitive. Il offre des fonctionnalités de création de pages avec un éditeur visuel, de gestion des médias, de contrôle des utilisateurs et des permissions, de personnalisation des thèmes, et d'optimisation SEO. Développé avec PHP pour le backend, MySQL pour la base de données, et JavaScript pour les fonctionnalités interactives.",
+          },
+          {
+            id: 21,
+            titre: "Application de livraison de repas",
+            description:
+              "Plateforme connectant restaurants, livreurs et clients pour la commande et livraison de repas.",
+            image:
+              "https://readdy.ai/api/search-image?query=food%20delivery%20application%20showing%20restaurant%20listings%2C%20order%20tracking%2C%20and%20delivery%20management%20interface%2C%20with%20appetizing%20food%20imagery&width=600&height=400&seq=21&orientation=landscape",
+            categorie: "professionnel",
+            tags: [
+              { nom: "React", icon: "ri-reactjs-fill" },
+              { nom: "Node.js", icon: "ri-nodejs-fill" },
+              { nom: "MongoDB", icon: "ri-database-2-fill" },
+            ],
+            github: "#",
+            descriptionComplete:
+              "Application de livraison de repas développée pour une startup locale. La plateforme connecte trois types d'utilisateurs : les restaurants qui peuvent gérer leur menu et leurs commandes, les livreurs qui peuvent accepter des livraisons et optimiser leurs itinéraires, et les clients qui peuvent commander des repas et suivre leur livraison en temps réel. Elle inclut un système de paiement sécurisé, des notifications push, et un système de notation. Développée avec React pour le frontend, Node.js pour le backend, et MongoDB pour la base de données.",
+          },
+          {
+            id: 22,
+            titre: "Portfolio 3D interactif",
+            description:
+              "Site portfolio utilisant WebGL pour créer une expérience 3D interactive et immersive.",
+            image:
+              "https://readdy.ai/api/search-image?query=3D%20interactive%20portfolio%20website%20with%20WebGL%20animations%2C%20immersive%20project%20showcase%2C%20and%20creative%20navigation%2C%20with%20artistic%20visual%20style&width=600&height=400&seq=22&orientation=landscape",
+            categorie: "personnel",
+            tags: [
+              { nom: "Three.js", icon: "ri-3d-cube-fill" },
+              { nom: "JavaScript", icon: "ri-javascript-fill" },
+              { nom: "GLSL", icon: "ri-code-s-slash-fill" },
+            ],
+            github: "#",
+            descriptionComplete:
+              "Portfolio 3D interactif développé comme projet personnel pour explorer les capacités de WebGL et créer une expérience web immersive. Le site présente mes projets dans un environnement 3D navigable, avec des transitions fluides entre les différentes sections, des animations réactives aux interactions utilisateur, et des effets visuels avancés. Développé avec Three.js pour le rendu 3D, JavaScript pour la logique d'application, et GLSL pour les shaders personnalisés. Optimisé pour les performances sur différents appareils.",
+          },
+          {
+            id: 23,
+            titre: "Système de gestion scolaire",
+            description:
+              "Application web complète pour la gestion des étudiants, cours, notes et emplois du temps d'un établissement scolaire.",
+            image:
+              "https://readdy.ai/api/search-image?query=school%20management%20system%20showing%20student%20records%2C%20course%20scheduling%2C%20grade%20tracking%2C%20and%20attendance%20management%20in%20a%20comprehensive%20dashboard&width=600&height=400&seq=23&orientation=landscape",
+            categorie: "scolaire",
+            tags: [
+              { nom: "Django", icon: "ri-code-s-slash-fill" },
+              { nom: "PostgreSQL", icon: "ri-database-2-fill" },
+              { nom: "Bootstrap", icon: "ri-bootstrap-fill" },
+            ],
+            github: "#",
+            descriptionComplete:
+              "Système de gestion scolaire développé dans le cadre d'un projet universitaire. L'application permet aux administrateurs de gérer les inscriptions, les cours et les emplois du temps, aux enseignants de gérer leurs cours, d'enregistrer les présences et les notes, et aux étudiants de consulter leurs emplois du temps, notes et devoirs. Elle inclut également un module de communication (messagerie, annonces), un système de génération de rapports, et un portail parent. Développée avec Django pour le backend, PostgreSQL pour la base de données, et Bootstrap pour l'interface utilisateur.",
+          },
+          {
+            id: 24,
+            titre: "Application de streaming musical",
+            description:
+              "Plateforme de streaming musical avec lecteur personnalisé, playlists et recommandations basées sur les goûts.",
+            image:
+              "https://readdy.ai/api/search-image?query=music%20streaming%20application%20with%20custom%20player%2C%20playlist%20management%2C%20and%20personalized%20recommendations%2C%20with%20dark%20theme%20and%20vibrant%20album%20artwork&width=600&height=400&seq=24&orientation=landscape",
+            categorie: "personnel",
+            tags: [
+              { nom: "Vue.js", icon: "ri-vuejs-fill" },
+              { nom: "Node.js", icon: "ri-nodejs-fill" },
+              { nom: "MongoDB", icon: "ri-database-2-fill" },
+            ],
+            github: "#",
+            descriptionComplete:
+              "Application de streaming musical développée comme projet personnel pour explorer les API audio et les algorithmes de recommandation. L'application permet aux utilisateurs d'écouter de la musique avec un lecteur personnalisé, de créer et partager des playlists, de découvrir de nouveaux artistes grâce à des recommandations basées sur leurs goûts, et de suivre l'activité de leurs amis. Elle utilise l'API Web Audio pour le traitement audio et les visualisations. Développée avec Vue.js pour le frontend, Node.js pour le backend, et MongoDB pour la base de données.",
+          },
+          {
+            id: 25,
+            titre: "Plateforme de gestion immobilière",
+            description:
+              "Application web pour agences immobilières permettant de gérer les biens, les clients et les transactions.",
+            image:
+              "https://readdy.ai/api/search-image?query=real%20estate%20management%20platform%20showing%20property%20listings%2C%20client%20database%2C%20and%20transaction%20tracking%2C%20with%20professional%20interface%20and%20property%20images&width=600&height=400&seq=25&orientation=landscape",
+            categorie: "professionnel",
+            tags: [
+              { nom: "Laravel", icon: "ri-code-s-slash-fill" },
+              { nom: "MySQL", icon: "ri-database-2-fill" },
+              { nom: "Alpine.js", icon: "ri-javascript-fill" },
+            ],
+            github: "#",
+            descriptionComplete:
+              "Plateforme de gestion immobilière développée pour une agence immobilière locale. L'application permet de gérer l'ensemble du cycle de vie immobilier : ajout et gestion des biens avec photos et caractéristiques détaillées, suivi des clients et de leurs recherches, gestion des visites et des offres, suivi des transactions et génération de documents. Elle inclut également un site vitrine public pour présenter les biens disponibles. Développée avec Laravel pour le backend, MySQL pour la base de données, et Alpine.js pour les interactions frontend.",
+          },
+          {
+            id: 26,
+            titre: "Outil d'analyse de données",
+            description:
+              "Application web permettant d'importer, visualiser et analyser des données avec graphiques interactifs.",
+            image:
+              "https://readdy.ai/api/search-image?query=data%20analysis%20tool%20showing%20interactive%20charts%2C%20data%20import%20interface%2C%20and%20statistical%20analysis%20results%2C%20with%20clean%20and%20professional%20dashboard%20design&width=600&height=400&seq=26&orientation=landscape",
+            categorie: "scolaire",
+            tags: [
+              { nom: "Python", icon: "ri-python-fill" },
+              { nom: "Pandas", icon: "ri-bar-chart-fill" },
+              { nom: "Dash", icon: "ri-dashboard-fill" },
+            ],
+            github: "#",
+            descriptionComplete:
+              "Outil d'analyse de données développé dans le cadre d'un projet universitaire de data science. L'application permet aux utilisateurs d'importer des données depuis différentes sources (CSV, Excel, bases de données), de nettoyer et transformer les données avec des opérations prédéfinies, de créer des visualisations interactives (graphiques, cartes, tableaux), et d'effectuer des analyses statistiques de base. Elle offre également des fonctionnalités d'exportation et de partage des résultats. Développée avec Python, Pandas pour le traitement des données, et Dash pour l'interface web interactive.",
+          },
+          {
+            id: 27,
+            titre: "Réseau social pour sportifs",
+            description:
+              "Plateforme permettant aux sportifs de partager leurs activités, de se connecter et d'organiser des événements.",
+            image:
+              "https://readdy.ai/api/search-image?query=sports%20social%20network%20showing%20activity%20sharing%2C%20athlete%20profiles%2C%20and%20event%20organization%20features%2C%20with%20fitness-themed%20design%20and%20activity%20tracking&width=600&height=400&seq=27&orientation=landscape",
+            categorie: "personnel",
+            tags: [
+              { nom: "React", icon: "ri-reactjs-fill" },
+              { nom: "GraphQL", icon: "ri-code-s-slash-fill" },
+              { nom: "MongoDB", icon: "ri-database-2-fill" },
+            ],
+            github: "#",
+            descriptionComplete:
+              "Réseau social pour sportifs développé comme projet personnel pour combiner ma passion pour le sport et le développement web. La plateforme permet aux utilisateurs de partager leurs activités sportives avec des statistiques détaillées, de suivre leurs amis et de découvrir de nouveaux sportifs, de créer et rejoindre des groupes thématiques, et d'organiser des événements sportifs. Elle inclut également des défis communautaires et un système de badges. Développée avec React pour le frontend, GraphQL pour l'API, et MongoDB pour la base de données.",
+          },
+          {
+            id: 28,
+            titre: "Application de prise de notes",
+            description:
+              "Application web et mobile de prise de notes avec organisation par catégories, recherche et synchronisation.",
+            image:
+              "https://readdy.ai/api/search-image?query=note-taking%20application%20with%20category%20organization%2C%20search%20functionality%2C%20and%20cross-device%20synchronization%2C%20with%20clean%20minimal%20design&width=600&height=400&seq=28&orientation=landscape",
+            categorie: "professionnel",
+            tags: [
+              { nom: "Flutter", icon: "ri-flutter-fill" },
+              { nom: "Firebase", icon: "ri-fire-fill" },
+              { nom: "Markdown", icon: "ri-markdown-fill" },
+            ],
+            github: "#",
+            descriptionComplete:
+              "Application de prise de notes développée pour une startup éducative. L'application permet aux utilisateurs de créer et d'organiser des notes avec support du Markdown pour le formatage, d'organiser les notes par catégories et tags, d'effectuer des recherches avancées dans le contenu, et de synchroniser les notes entre différents appareils. Elle offre également des fonctionnalités de collaboration, de partage de notes, et d'exportation dans différents formats. Développée avec Flutter pour une expérience cross-platform (web, iOS, Android) et Firebase pour le backend et la synchronisation.",
+          },
+          {
+            id: 29,
+            titre: "Simulateur de circuits électroniques",
+            description:
+              "Application web permettant de concevoir et simuler des circuits électroniques avec composants interactifs.",
+            image:
+              "https://readdy.ai/api/search-image?query=electronic%20circuit%20simulator%20with%20interactive%20components%2C%20circuit%20design%20interface%2C%20and%20real-time%20simulation%20results%2C%20with%20technical%20schematic%20visualization&width=600&height=400&seq=29&orientation=landscape",
+            categorie: "scolaire",
+            tags: [
+              { nom: "JavaScript", icon: "ri-javascript-fill" },
+              { nom: "SVG", icon: "ri-shape-fill" },
+              { nom: "Web Workers", icon: "ri-code-s-slash-fill" },
+            ],
+            github: "#",
+            descriptionComplete:
+              "Simulateur de circuits électroniques développé dans le cadre d'un projet universitaire d'électronique. L'application permet aux utilisateurs de concevoir des circuits électroniques en plaçant et connectant des composants (résistances, condensateurs, transistors, etc.) sur un canevas interactif, de paramétrer les propriétés des composants, et de simuler le comportement du circuit en temps réel avec visualisation des courants et tensions. Elle inclut également une bibliothèque de circuits prédéfinis et un mode d'exportation. Développée entièrement en JavaScript avec SVG pour le rendu graphique et Web Workers pour les calculs de simulation.",
+          },
+          {
+            id: 30,
+            titre: "Application de méditation guidée",
+            description:
+              "Application mobile proposant des séances de méditation guidée avec suivi de progression et statistiques.",
+            image:
+              "https://readdy.ai/api/search-image?query=meditation%20app%20with%20guided%20sessions%2C%20progress%20tracking%2C%20and%20calming%20interface%20design%2C%20showing%20meditation%20timer%20and%20peaceful%20imagery&width=600&height=400&seq=30&orientation=landscape",
+            categorie: "personnel",
+            tags: [
+              { nom: "React Native", icon: "ri-reactjs-fill" },
+              { nom: "Redux", icon: "ri-refresh-fill" },
+              { nom: "Firebase", icon: "ri-fire-fill" },
+            ],
+            github: "#",
+            descriptionComplete:
+              "Application de méditation guidée développée comme projet personnel pour promouvoir le bien-être mental. L'application propose une bibliothèque de méditations guidées classées par objectif (stress, sommeil, concentration), un minuteur de méditation personnalisable avec sons d'ambiance, un suivi de progression avec statistiques et graphiques, et des rappels quotidiens. Elle inclut également un journal de gratitude et des exercices de respiration. Développée avec React Native pour une expérience cross-platform, Redux pour la gestion d'état, et Firebase pour le backend et l'authentification.",
+          },
+        ];
+        const projetGrille = document.querySelector(".projetGrille");
+        const boutonAfficherPlus = document.getElementById("boutonAfficherPlus");
+        const filtres = document.querySelectorAll(".projetFiltre");
+        let categorieActive = "tous";
+        let afficherTous = false;
+        // Fonction pour afficher les projets
+        function afficherProjets() {
+          projetGrille.innerHTML = "";
+          let projetsFiltres = projets;
+          if (categorieActive !== "tous") {
+            projetsFiltres = projets.filter(
+              (projet) => projet.categorie === categorieActive,
+            );
+          }
+          const nombreProjetsAfficher = afficherTous
+            ? projetsFiltres.length
+            : Math.min(9, projetsFiltres.length);
+          for (let i = 0; i < nombreProjetsAfficher; i++) {
+            const projet = projetsFiltres[i];
+            const projetElement = document.createElement("div");
+            projetElement.className =
+              "projetCarte bg-white rounded overflow-hidden shadow-md transition-all";
+            let tagsHTML = "";
+            projet.tags.forEach((tag) => {
+              tagsHTML += `<span class="projetTag"><i class="${tag.icon}"></i> ${tag.nom}</span>`;
+            });
+            projetElement.innerHTML = `
+      <img src="${projet.image}" alt="${projet.titre}" class="w-full h-48 object-cover">
+      <div class="p-4">
+      <h3 class="text-lg font-semibold mb-2">${projet.titre}</h3>
+      <p class="text-gray-600 text-sm mb-4 h-12 overflow-hidden">${projet.description}</p>
+      <div class="flex flex-wrap mb-4">
+      ${tagsHTML}
+      </div>
+      <div class="flex justify-between items-center">
+      <button class="boutonDetails bg-white text-primary border border-primary px-3 py-1 !rounded-button text-sm hover:bg-primary hover:text-white transition-colors whitespace-nowrap" data-id="${projet.id}">
+      <i class="ri-eye-line mr-1"></i> Détails
+      </button>
+      <a href="${projet.github}" target="_blank" class="bg-[#171515] text-white px-3 py-1 !rounded-button text-sm hover:bg-[#171515]/90 transition-colors whitespace-nowrap">
+      <i class="ri-github-fill mr-1"></i> GitHub
+      </a>
+      </div>
+      </div>
+      `;
+            projetGrille.appendChild(projetElement);
+          }
+          // Mise à jour du bouton "Afficher plus"
+          if (projetsFiltres.length <= 9 || afficherTous) {
+            boutonAfficherPlus.style.display = "none";
+          } else {
+            boutonAfficherPlus.style.display = "block";
+            boutonAfficherPlus.textContent = `Afficher ${projetsFiltres.length - 9} projets de plus`;
+            boutonAfficherPlus.innerHTML = `<i class="ri-add-line mr-2"></i> Afficher ${projetsFiltres.length - 9} projets de plus`;
+          }
+          // Ajout des événements pour les boutons de détails
+          document.querySelectorAll(".boutonDetails").forEach((bouton) => {
+            bouton.addEventListener("click", function () {
+              const projetId = parseInt(this.getAttribute("data-id"));
+              afficherModal(projetId);
+            });
+          });
+        }
+        // Fonction pour afficher le modal
+        function afficherModal(projetId) {
+          const projet = projets.find((p) => p.id === projetId);
+          if (!projet) return;
+          const modal = document.getElementById("projetModal");
+          const modalImage = document.getElementById("modalImage");
+          const modalTitle = document.getElementById("modalTitle");
+          const modalTags = document.getElementById("modalTags");
+          const modalDescription = document.getElementById("modalDescription");
+          const modalCategorie = document.getElementById("modalCategorie");
+          const modalGithub = document.getElementById("modalGithub");
+          modalImage.src = projet.image;
+          modalImage.alt = projet.titre;
+          modalTitle.textContent = projet.titre;
+          modalTags.innerHTML = "";
+          projet.tags.forEach((tag) => {
+            const tagElement = document.createElement("span");
+            tagElement.className = "projetTag";
+            tagElement.innerHTML = `<i class="${tag.icon}"></i> ${tag.nom}`;
+            modalTags.appendChild(tagElement);
+          });
+          modalDescription.textContent = projet.descriptionComplete;
+          let categorieText = "";
+          switch (projet.categorie) {
+            case "professionnel":
+              categorieText = "Projet professionnel";
+              break;
+            case "scolaire":
+              categorieText = "Projet scolaire";
+              break;
+            case "personnel":
+              categorieText = "Projet personnel";
+              break;
+          }
+          modalCategorie.textContent = categorieText;
+          modalGithub.href = projet.github;
+          modal.style.display = "block";
+          document.body.style.overflow = "hidden";
+        }
+        // Initialisation
+        afficherProjets();
+        // Événements
+        boutonAfficherPlus.addEventListener("click", function () {
+          afficherTous = true;
+          afficherProjets();
+        });
+        filtres.forEach((filtre) => {
+          filtre.addEventListener("click", function () {
+            filtres.forEach((f) => {
+              f.classList.remove("bg-primary", "text-white");
+              f.classList.add("text-gray-700", "hover:bg-gray-200");
+            });
+            this.classList.add("bg-primary", "text-white");
+            this.classList.remove("text-gray-700", "hover:bg-gray-200");
+            categorieActive = this.getAttribute("data-filter");
+            afficherTous = false;
+            afficherProjets();
+          });
+        });
+        document.getElementById("closeModal").addEventListener("click", function () {
+          document.getElementById("projetModal").style.display = "none";
+          document.body.style.overflow = "auto";
+        });
+        window.addEventListener("click", function (event) {
+          const modal = document.getElementById("projetModal");
+          if (event.target === modal) {
+            modal.style.display = "none";
+            document.body.style.overflow = "auto";
+          }
+        });
+      });
+      // Easter Egg - Terminal
+      document.addEventListener("DOMContentLoaded", function () {
+        const inputs = document.querySelectorAll("input, textarea");
+        const cmdModal = document.getElementById("cmdModal");
+        const cmdInput = document.getElementById("cmdInput");
+        const cmdOutput = document.getElementById("cmdOutput");
+        const closeCmdModal = document.getElementById("closeCmdModal");
+        inputs.forEach((input) => {
+          input.addEventListener("input", function (e) {
+            if (this.value.endsWith("cmd")) {
+              this.value = this.value.slice(0, -3);
+              cmdModal.style.display = "block";
+              cmdInput.focus();
+            }
+          });
+        });
+        closeCmdModal.addEventListener("click", function () {
+          cmdModal.style.display = "none";
+        });
+        cmdInput.addEventListener("keydown", function (e) {
+          if (e.key === "Enter") {
+            const command = this.value.trim();
+            cmdOutput.innerHTML += `<p><span style="color: #10B981;">$</span> ${command}</p>`;
+            executeCommand(command);
+            this.value = "";
+          }
+        });
+        function executeCommand(command) {
+          let response = "";
+          switch (command.toLowerCase()) {
+            case "./sudoku.exe":
+              window.open("jeux/devsudoku.html", "_blank");
+              response = "Lancement du jeu Sudoku...";
+              break;
+            case "./snake.exe":
+              window.open("jeux/Devsnake.html", "_blank");
+              response = "Lancement du jeu Snake...";
+              break;
+            case "./2048.exe":
+              window.open("jeux/2048DevEdition.html", "_blank");
+              response = "Lancement du jeu 2048...";
+              break;
+            case "./codejump.exe":
+              window.open("jeux/codejump.html", "_blank");
+              response = "Lancement du jeu CodeJump...";
+              break;
+            case "./demineur.exe":
+              window.open("jeux/bugfinder.html", "_blank");
+              response = "Lancement du jeu Démineur...";
+              break;
+            case "help":
+              response = `
+      <p>Commandes disponibles :</p>
+      <p>- <strong>help</strong> : Affiche cette aide</p>
+      <p>- <strong>about</strong> : À propos de Mathéo Cortez</p>
+      <p>- <strong>skills</strong> : Liste mes compétences</p>
+      <p>- <strong>projects</strong> : Liste mes projets</p>
+      <p>- <strong>contact</strong> : Mes informations de contact</p>
+      <p>- <strong>clear</strong> : Efface le terminal</p>
+      <p>- <strong>exit</strong> : Ferme le terminal</p>
+      <p>Jeux disponibles :</p>
+      <p>- <strong>./sudoku.exe</strong> : Lance le jeu Sudoku</p>
+      <p>- <strong>./snake.exe</strong> : Lance le jeu Snake</p>
+      <p>- <strong>./2048.exe</strong> : Lance le jeu 2048</p>
+      <p>- <strong>./codejump.exe</strong> : Lance le jeu CodeJump</p>
+      <p>- <strong>./demineur.exe</strong> : Lance le jeu Démineur</p>
+      `;
+              break;
+            case "about":
+              response = `
+      <p>Mathéo Cortez</p>
+      <p>Étudiant en BUT Informatique, 20 ans</p>
+      <p>Passionné de développement web et d'applications</p>
+      <p>Basé à Cholet, France</p>
+      `;
+              break;
+            case "skills":
+              response = `
+      <p>Compétences techniques :</p>
+      <p>- Langages : HTML, CSS, JavaScript, Java, Python, PHP, C, SQL</p>
+      <p>- Outils : Git, Docker, Figma</p>
+      <p>- Bases de données : MySQL, MongoDB, PostgreSQL</p>
+      `;
+              break;
+            case "projects":
+              response = `
+      <p>Projets récents :</p>
+      <p>- Site web AGD Groupe</p>
+      <p>- Site web Bowlcenter</p>
+      <p>- DevSudoku</p>
+      <p>Tapez 'projects --all' pour voir tous les projets</p>
+      `;
+              break;
+              case "admin":
+               window.open("https://www.youtube.com/watch?v=dQw4w9WgXcQ", "_blank");
+              response = "J'suis pas con à ce point mdr";
+              break;
+            case "projects --all":
+              response = `
+      <p>Liste complète des projets :</p>
+      `;
+              for (let i = 0; i < 10; i++) {
+                response += `<p>- ${projets[i].titre}</p>`;
+              }
+              response += `<p>... et ${projets.length - 10} autres projets</p>`;
+              break;
+            case "contact":
+              response = `
+      <p>Email : matheocrtz2005@gmail.com</p>
+      <p>Téléphone : +33 6 21 29 27 56</p>
+      <p>GitHub : github.com/Matheo-Cortez</p>
+      <p>LinkedIn : linkedin.com/in/mathéo-cortez/</p>
+      `;
+              break;
+            case "cssbeginner":
+              applyUglyCSS();
+              response = "Bienvenue dans l'enfer du CSS débutant 🤡";
+              break;
+            case "bsod":
+                simulateBSOD();
+                response = "Commande non reconnue : 'bsod'. Tapez 'help' pour voir les commandes disponibles.";
+                break;
+            case "execute order 66":
+              executeOrder66();
+              response = "⚡ Exécution de l'ordre 66... Que la Force soit avec toi.";
+              break;
+            case "upside down":
+              document.body.classList.toggle("upside-down");
+              response = "🙃 Tout est à l'envers maintenant !";
+              break;
+            case "therisnospoon":
+              activateMatrixMode();
+              response = "💊 Que la vérité t'éclaire...";
+              break;
+            case "first rule":
+              activateFightClubEasterEgg();
+              response = "☠️ Règle n°1 violée...";
+              break;
+
+            case "clear":
+              cmdOutput.innerHTML = "";
+              return;
+            case "exit":
+              cmdModal.style.display = "none";
+              return;
+            default:
+              response = `Commande non reconnue : '${command}'. Tapez 'help' pour voir les commandes disponibles.`;
+          }
+          cmdOutput.innerHTML += `<div style="margin-bottom: 10px;">${response}</div>`;
+          cmdOutput.scrollTop = cmdOutput.scrollHeight;
+        }
+      });
+      </script>
+      <script src="order66.js"></script>
+      <script src="bsod.js"></script>
+      <script src="uglycss.js"></script>
+      <script src="matrixmode.js"></script>
+      <script src="fightclub.js"></script>
+      <script src="konami.js"></script>
+
+      
+  </body>
+</html>
