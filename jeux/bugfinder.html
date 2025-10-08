@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bug Finder - Démineur pour Développeurs</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: { primary: "#6366f1", secondary: "#8b5cf6" },
+            borderRadius: {
+              none: "0px",
+              sm: "4px",
+              DEFAULT: "8px",
+              md: "12px",
+              lg: "16px",
+              xl: "20px",
+              "2xl": "24px",
+              "3xl": "32px",
+              full: "9999px",
+              button: "8px",
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
+    />
+    <style>
+      :where([class^="ri-"])::before { content: "\f3c2"; }
+      body {
+          font-family: 'Fira Code', monospace;
+          background-color: #f9fafb;
+      }
+      .cell {
+          transition: all 0.2s ease;
+          user-select: none;
+      }
+      .cell:hover:not(.revealed):not(.flagged) {
+          background-color: rgba(99, 102, 241, 0.1);
+      }
+      .cell.revealed {
+          background-color: #f3f4f6;
+      }
+      .cell.revealed.has-bug {
+          background-color: #fee2e2;
+      }
+      .cell.flagged {
+          background-color: #e0f2fe;
+      }
+      .number-1 { color: #3b82f6; }
+      .number-2 { color: #10b981; }
+      .number-3 { color: #ef4444; }
+      .number-4 { color: #6366f1; }
+      .number-5 { color: #f59e0b; }
+      .number-6 { color: #0ea5e9; }
+      .number-7 { color: #8b5cf6; }
+      .number-8 { color: #64748b; }
+
+      .range-slider::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: #6366f1;
+          cursor: pointer;
+      }
+
+      .range-slider::-moz-range-thumb {
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: #6366f1;
+          cursor: pointer;
+          border: none;
+      }
+
+      .switch {
+          position: relative;
+          display: inline-block;
+          width: 48px;
+          height: 24px;
+      }
+
+      .switch input {
+          opacity: 0;
+          width: 0;
+          height: 0;
+      }
+
+      .slider {
+          position: absolute;
+          cursor: pointer;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: #e5e7eb;
+          transition: .4s;
+          border-radius: 24px;
+      }
+
+      .slider:before {
+          position: absolute;
+          content: "";
+          height: 18px;
+          width: 18px;
+          left: 3px;
+          bottom: 3px;
+          background-color: white;
+          transition: .4s;
+          border-radius: 50%;
+      }
+
+      input:checked + .slider {
+          background-color: #6366f1;
+      }
+
+      input:checked + .slider:before {
+          transform: translateX(24px);
+      }
+
+      .radio-container {
+          display: flex;
+          align-items: center;
+          margin-bottom: 0.5rem;
+          cursor: pointer;
+      }
+
+      .custom-radio {
+          width: 18px;
+          height: 18px;
+          border: 2px solid #d1d5db;
+          border-radius: 50%;
+          margin-right: 8px;
+          position: relative;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+      }
+
+      .radio-container input:checked + .custom-radio {
+          border-color: #6366f1;
+      }
+
+      .radio-container input:checked + .custom-radio:after {
+          content: "";
+          width: 10px;
+          height: 10px;
+          background-color: #6366f1;
+          border-radius: 50%;
+          position: absolute;
+      }
+
+      .radio-container input {
+          display: none;
+      }
+
+      @media (max-width: 768px) {
+          .game-container {
+              flex-direction: column;
+          }
+          .settings-panel {
+              width: 100%;
+              max-height: 300px;
+              overflow-y: auto;
+          }
+      }
+    </style>
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <!-- Barre de navigation -->
+    <nav class="bg-white shadow-md py-3 px-6 flex items-center justify-between">
+      <div class="flex items-center">
+        <div class="w-8 h-8 flex items-center justify-center text-primary mr-2">
+          <i class="ri-bug-line ri-lg"></i>
+        </div>
+        <h1 class="text-xl font-['Pacifico'] text-gray-800">Bug Finder</h1>
+      </div>
+
+      <div class="flex items-center space-x-4">
+        <div
+          id="timer"
+          class="bg-gray-100 px-4 py-2 rounded text-gray-800 font-semibold"
+        >
+          00:00
+        </div>
+        <div class="flex items-center">
+          <div
+            class="w-6 h-6 flex items-center justify-center text-red-500 mr-1"
+          >
+            <i class="ri-bug-fill"></i>
+          </div>
+          <span id="bug-counter" class="text-gray-800 font-semibold">0</span>
+        </div>
+      </div>
+
+      <div class="flex space-x-2">
+        <button
+          id="new-game-btn"
+          class="bg-primary text-white px-4 py-2 !rounded-button flex items-center whitespace-nowrap"
+        >
+          <div class="w-5 h-5 flex items-center justify-center mr-1">
+            <i class="ri-restart-line"></i>
+          </div>
+          Nouvelle Partie
+        </button>
+        <button
+          id="pause-btn"
+          class="bg-gray-100 text-gray-800 px-4 py-2 !rounded-button flex items-center whitespace-nowrap"
+        >
+          <div class="w-5 h-5 flex items-center justify-center mr-1">
+            <i class="ri-pause-line"></i>
+          </div>
+          Pause
+        </button>
+      </div>
+    </nav>
+
+    <!-- Conteneur principal -->
+    <div class="flex-1 flex game-container">
+      <!-- Zone de jeu -->
+      <div class="flex-1 p-6 flex justify-center items-start overflow-auto">
+        <div class="bg-white shadow-lg rounded-lg p-4 w-full max-w-3xl">
+          <div class="mb-4 flex justify-between items-center">
+            <h2 class="text-lg font-semibold text-gray-800">
+              Trouvez les bugs dans le code
+            </h2>
+            <div class="text-sm text-gray-600">
+              Clic droit pour marquer un bug
+            </div>
+          </div>
+          <div
+            id="grid-container"
+            class="grid grid-cols-8 gap-1 bg-gray-100 p-2 rounded"
+          >
+            <!-- La grille sera générée dynamiquement par JavaScript -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Panneau de paramètres -->
+      <div
+        class="settings-panel w-80 bg-white shadow-lg p-6 border-l border-gray-200 overflow-y-auto"
+      >
+        <h2 class="text-lg font-semibold text-gray-800 mb-6">Configuration</h2>
+
+        <div class="mb-6">
+          <h3 class="text-md font-medium text-gray-700 mb-3">
+            Taille de la grille
+          </h3>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm text-gray-600">8×8</span>
+            <span id="grid-size-value" class="text-sm font-medium text-gray-800"
+              >16×16</span
+            >
+            <span class="text-sm text-gray-600">30×30</span>
+          </div>
+          <input
+            type="range"
+            id="grid-size"
+            class="range-slider w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer"
+            min="8"
+            max="30"
+            value="16"
+          />
+        </div>
+
+        <div class="mb-6">
+          <h3 class="text-md font-medium text-gray-700 mb-3">Nombre de bugs</h3>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm text-gray-600">Peu</span>
+            <span id="bug-count-value" class="text-sm font-medium text-gray-800"
+              >40</span
+            >
+            <span class="text-sm text-gray-600">Beaucoup</span>
+          </div>
+          <input
+            type="range"
+            id="bug-count"
+            class="range-slider w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer"
+            min="10"
+            max="99"
+            value="40"
+          />
+        </div>
+
+        <div class="mb-6">
+          <h3 class="text-md font-medium text-gray-700 mb-3">Thème</h3>
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-800">Mode sombre</span>
+            <label class="switch">
+              <input type="checkbox" id="theme-toggle" />
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="mb-6">
+          <h3 class="text-md font-medium text-gray-700 mb-3">Difficulté</h3>
+          <div class="space-y-2">
+            <label class="radio-container">
+              <input type="radio" name="difficulty" value="beginner" checked />
+              <span class="custom-radio"></span>
+              <span class="text-sm text-gray-800">Débutant (8×8, 10 bugs)</span>
+            </label>
+            <label class="radio-container">
+              <input type="radio" name="difficulty" value="intermediate" />
+              <span class="custom-radio"></span>
+              <span class="text-sm text-gray-800"
+                >Intermédiaire (16×16, 40 bugs)</span
+              >
+            </label>
+            <label class="radio-container">
+              <input type="radio" name="difficulty" value="expert" />
+              <span class="custom-radio"></span>
+              <span class="text-sm text-gray-800">Expert (30×30, 99 bugs)</span>
+            </label>
+          </div>
+        </div>
+
+        <button
+          id="apply-settings"
+          class="w-full bg-primary text-white py-2 !rounded-button whitespace-nowrap"
+        >
+          Appliquer les paramètres
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal de fin de partie (caché par défaut) -->
+    <div
+      id="end-game-modal"
+      class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+        <div id="game-result" class="text-center mb-4">
+          <div id="win-message" class="hidden">
+            <div
+              class="w-16 h-16 mx-auto mb-4 text-green-500 flex items-center justify-center"
+            >
+              <i class="ri-check-line ri-3x"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">
+              Félicitations!
+            </h2>
+            <p class="text-gray-600">Vous avez trouvé tous les bugs!</p>
+          </div>
+          <div id="lose-message" class="hidden">
+            <div
+              class="w-16 h-16 mx-auto mb-4 text-red-500 flex items-center justify-center"
+            >
+              <i class="ri-close-line ri-3x"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Boom!</h2>
+            <p class="text-gray-600">Vous avez déclenché un bug critique!</p>
+          </div>
+        </div>
+
+        <div class="mb-6 border-t border-b border-gray-200 py-4">
+          <div class="flex justify-between mb-2">
+            <span class="text-gray-600">Temps:</span>
+            <span id="final-time" class="font-semibold text-gray-800"
+              >00:00</span
+            >
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Difficulté:</span>
+            <span id="final-difficulty" class="font-semibold text-gray-800"
+              >Intermédiaire</span
+            >
+          </div>
+        </div>
+
+        <div class="flex space-x-3">
+          <button
+            id="play-again-btn"
+            class="flex-1 bg-primary text-white py-2 !rounded-button whitespace-nowrap"
+          >
+            Rejouer
+          </button>
+          <button
+            id="share-score-btn"
+            class="flex-1 bg-gray-100 text-gray-800 py-2 !rounded-button whitespace-nowrap"
+          >
+            Partager
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Variables globales
+        let gridSize = 16;
+        let bugCount = 40;
+        let grid = [];
+        let gameStarted = false;
+        let gameOver = false;
+        let timerInterval;
+        let startTime;
+        let flaggedCount = 0;
+        let revealedCount = 0;
+        let darkMode = true;
+
+        // Éléments DOM
+        const gridContainer = document.getElementById("grid-container");
+        const timerElement = document.getElementById("timer");
+        const bugCounterElement = document.getElementById("bug-counter");
+        const newGameBtn = document.getElementById("new-game-btn");
+        const pauseBtn = document.getElementById("pause-btn");
+        const gridSizeSlider = document.getElementById("grid-size");
+        const gridSizeValue = document.getElementById("grid-size-value");
+        const bugCountSlider = document.getElementById("bug-count");
+        const bugCountValue = document.getElementById("bug-count-value");
+        const themeToggle = document.getElementById("theme-toggle");
+        const difficultyRadios = document.querySelectorAll(
+          'input[name="difficulty"]',
+        );
+        const applySettingsBtn = document.getElementById("apply-settings");
+        const endGameModal = document.getElementById("end-game-modal");
+        const winMessage = document.getElementById("win-message");
+        const loseMessage = document.getElementById("lose-message");
+        const finalTimeElement = document.getElementById("final-time");
+        const finalDifficultyElement = document.getElementById("final-difficulty");
+        const playAgainBtn = document.getElementById("play-again-btn");
+        const shareScoreBtn = document.getElementById("share-score-btn");
+
+        // Initialisation
+        initGame();
+
+        // Fonctions
+        function initGame() {
+          gridContainer.innerHTML = "";
+          gridContainer.style.gridTemplateColumns = `repeat(${gridSize}, minmax(0, 1fr))`;
+
+          grid = [];
+          gameStarted = false;
+          gameOver = false;
+          flaggedCount = 0;
+          revealedCount = 0;
+
+          // Arrêter le timer s'il est en cours
+          if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+          }
+
+          timerElement.textContent = "00:00";
+          bugCounterElement.textContent = bugCount;
+
+          // Créer la grille
+          for (let row = 0; row < gridSize; row++) {
+            grid[row] = [];
+            for (let col = 0; col < gridSize; col++) {
+              grid[row][col] = {
+                hasBug: false,
+                revealed: false,
+                flagged: false,
+                adjacentBugs: 0,
+              };
+
+              const cell = document.createElement("div");
+              cell.className =
+                "cell flex items-center justify-center bg-white border border-gray-200 cursor-pointer select-none";
+              cell.style.height = "32px";
+              cell.dataset.row = row;
+              cell.dataset.col = col;
+
+              // Événements de clic
+              cell.addEventListener("click", function (e) {
+                if (!gameOver) {
+                  handleCellClick(row, col);
+                }
+              });
+
+              cell.addEventListener("contextmenu", function (e) {
+                e.preventDefault();
+                if (!gameOver) {
+                  handleRightClick(row, col);
+                }
+              });
+
+              gridContainer.appendChild(cell);
+            }
+          }
+
+          // Mettre à jour l'affichage
+          updateDisplay();
+        }
+
+        function startGame(firstRow, firstCol) {
+          // Placer les bugs aléatoirement (sauf sur la première cellule cliquée)
+          let bugsPlaced = 0;
+          while (bugsPlaced < bugCount) {
+            const row = Math.floor(Math.random() * gridSize);
+            const col = Math.floor(Math.random() * gridSize);
+
+            // Éviter de placer un bug sur la première cellule cliquée ou autour
+            if (
+              (Math.abs(row - firstRow) <= 1 && Math.abs(col - firstCol) <= 1) ||
+              grid[row][col].hasBug
+            ) {
+              continue;
+            }
+
+            grid[row][col].hasBug = true;
+            bugsPlaced++;
+          }
+
+          // Calculer les nombres adjacents
+          for (let row = 0; row < gridSize; row++) {
+            for (let col = 0; col < gridSize; col++) {
+              if (!grid[row][col].hasBug) {
+                grid[row][col].adjacentBugs = countAdjacentBugs(row, col);
+              }
+            }
+          }
+
+          // Démarrer le timer
+          startTime = Date.now();
+          timerInterval = setInterval(updateTimer, 1000);
+
+          gameStarted = true;
+        }
+
+        function handleCellClick(row, col) {
+          // Si c'est le premier clic, démarrer le jeu
+          if (!gameStarted) {
+            startGame(row, col);
+          }
+
+          const cell = grid[row][col];
+
+          // Ne rien faire si la cellule est déjà révélée ou marquée
+          if (cell.revealed || cell.flagged) {
+            return;
+          }
+
+          // Si on clique sur un bug, game over
+          if (cell.hasBug) {
+            revealAllBugs();
+            endGame(false);
+            return;
+          }
+
+          // Révéler la cellule
+          revealCell(row, col);
+
+          // Vérifier si le joueur a gagné
+          checkWinCondition();
+        }
+
+        function handleRightClick(row, col) {
+          if (!gameStarted) {
+            startGame(row, col);
+          }
+
+          const cell = grid[row][col];
+
+          // Ne rien faire si la cellule est déjà révélée
+          if (cell.revealed) {
+            return;
+          }
+
+          // Marquer/démarquer la cellule
+          cell.flagged = !cell.flagged;
+
+          // Mettre à jour le compteur de bugs
+          flaggedCount = cell.flagged ? flaggedCount + 1 : flaggedCount - 1;
+          bugCounterElement.textContent = bugCount - flaggedCount;
+
+          // Mettre à jour l'affichage
+          updateDisplay();
+
+          // Vérifier si le joueur a gagné
+          checkWinCondition();
+        }
+
+        function revealCell(row, col) {
+          const cell = grid[row][col];
+
+          // Ne rien faire si la cellule est déjà révélée ou marquée
+          if (cell.revealed || cell.flagged) {
+            return;
+          }
+
+          // Révéler la cellule
+          cell.revealed = true;
+          revealedCount++;
+
+          // Si la cellule n'a pas de bugs adjacents, révéler les cellules adjacentes
+          if (cell.adjacentBugs === 0) {
+            for (
+              let r = Math.max(0, row - 1);
+              r <= Math.min(gridSize - 1, row + 1);
+              r++
+            ) {
+              for (
+                let c = Math.max(0, col - 1);
+                c <= Math.min(gridSize - 1, col + 1);
+                c++
+              ) {
+                if (r !== row || c !== col) {
+                  revealCell(r, c);
+                }
+              }
+            }
+          }
+
+          // Mettre à jour l'affichage
+          updateDisplay();
+        }
+
+        function countAdjacentBugs(row, col) {
+          let count = 0;
+          for (
+            let r = Math.max(0, row - 1);
+            r <= Math.min(gridSize - 1, row + 1);
+            r++
+          ) {
+            for (
+              let c = Math.max(0, col - 1);
+              c <= Math.min(gridSize - 1, col + 1);
+              c++
+            ) {
+              if ((r !== row || c !== col) && grid[r][c].hasBug) {
+                count++;
+              }
+            }
+          }
+          return count;
+        }
+
+        function revealAllBugs() {
+          for (let row = 0; row < gridSize; row++) {
+            for (let col = 0; col < gridSize; col++) {
+              if (grid[row][col].hasBug) {
+                grid[row][col].revealed = true;
+              }
+            }
+          }
+          updateDisplay();
+        }
+
+        function checkWinCondition() {
+          const totalCells = gridSize * gridSize;
+          const nonBugCells = totalCells - bugCount;
+
+          // Le joueur gagne s'il a révélé toutes les cellules sans bug
+          if (revealedCount === nonBugCells) {
+            endGame(true);
+          }
+        }
+
+        function endGame(isWin) {
+          gameOver = true;
+
+          // Arrêter le timer
+          if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+          }
+
+          // Afficher le modal de fin de partie
+          finalTimeElement.textContent = timerElement.textContent;
+
+          // Déterminer la difficulté actuelle
+          let currentDifficulty = "Personnalisée";
+          if (gridSize === 8 && bugCount === 10) {
+            currentDifficulty = "Débutant";
+          } else if (gridSize === 16 && bugCount === 40) {
+            currentDifficulty = "Intermédiaire";
+          } else if (gridSize === 30 && bugCount === 99) {
+            currentDifficulty = "Expert";
+          }
+          finalDifficultyElement.textContent = currentDifficulty;
+
+          // Afficher le message approprié
+          winMessage.classList.toggle("hidden", !isWin);
+          loseMessage.classList.toggle("hidden", isWin);
+
+          endGameModal.classList.remove("hidden");
+        }
+
+        function updateTimer() {
+          const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+          const minutes = Math.floor(elapsedTime / 60)
+            .toString()
+            .padStart(2, "0");
+          const seconds = (elapsedTime % 60).toString().padStart(2, "0");
+          timerElement.textContent = `${minutes}:${seconds}`;
+        }
+
+        function updateDisplay() {
+          const cells = gridContainer.querySelectorAll(".cell");
+
+          cells.forEach((cellElement) => {
+            const row = parseInt(cellElement.dataset.row);
+            const col = parseInt(cellElement.dataset.col);
+            const cell = grid[row][col];
+
+            // Réinitialiser les classes
+            cellElement.className =
+              "cell flex items-center justify-center border border-gray-200 select-none";
+            cellElement.textContent = "";
+
+            if (cell.revealed) {
+              cellElement.classList.add("revealed");
+
+              if (cell.hasBug) {
+                cellElement.classList.add("has-bug");
+                const bugIcon = document.createElement("i");
+                bugIcon.className = "ri-bug-fill text-red-500";
+                cellElement.appendChild(bugIcon);
+              } else if (cell.adjacentBugs > 0) {
+                cellElement.textContent = cell.adjacentBugs;
+                cellElement.classList.add(`number-${cell.adjacentBugs}`);
+              }
+            } else if (cell.flagged) {
+              cellElement.classList.add("flagged");
+              const flagIcon = document.createElement("i");
+              flagIcon.className = "ri-flag-fill text-blue-500";
+              cellElement.appendChild(flagIcon);
+            } else {
+              cellElement.classList.add("cursor-pointer");
+            }
+
+            // Appliquer le thème
+            if (darkMode) {
+              if (!cell.revealed && !cell.flagged) {
+                cellElement.classList.add("bg-gray-800", "border-gray-700");
+              } else if (cell.revealed && !cell.hasBug) {
+                cellElement.classList.add("bg-gray-700", "border-gray-600");
+              } else if (cell.flagged) {
+                cellElement.classList.add("bg-gray-700", "border-gray-600");
+              }
+            } else {
+              if (!cell.revealed && !cell.flagged) {
+                cellElement.classList.add("bg-white", "border-gray-200");
+              } else if (cell.revealed && !cell.hasBug) {
+                cellElement.classList.add("bg-gray-100", "border-gray-200");
+              } else if (cell.flagged) {
+                cellElement.classList.add("bg-blue-50", "border-gray-200");
+              }
+            }
+          });
+        }
+
+        // Événements
+        newGameBtn.addEventListener("click", function () {
+          initGame();
+        });
+
+        pauseBtn.addEventListener("click", function () {
+          if (!gameStarted || gameOver) return;
+
+          if (timerInterval) {
+            // Mettre en pause
+            clearInterval(timerInterval);
+            timerInterval = null;
+            pauseBtn.innerHTML =
+              '<div class="w-5 h-5 flex items-center justify-center mr-1"><i class="ri-play-line"></i></div>Reprendre';
+            gridContainer.classList.add("opacity-50", "pointer-events-none");
+          } else {
+            // Reprendre
+            startTime =
+              Date.now() -
+              (parseInt(timerElement.textContent.split(":")[0]) * 60 +
+                parseInt(timerElement.textContent.split(":")[1])) *
+                1000;
+            timerInterval = setInterval(updateTimer, 1000);
+            pauseBtn.innerHTML =
+              '<div class="w-5 h-5 flex items-center justify-center mr-1"><i class="ri-pause-line"></i></div>Pause';
+            gridContainer.classList.remove("opacity-50", "pointer-events-none");
+          }
+        });
+
+        gridSizeSlider.addEventListener("input", function () {
+          gridSize = parseInt(this.value);
+          gridSizeValue.textContent = `${gridSize}×${gridSize}`;
+
+          // Ajuster le nombre maximum de bugs en fonction de la taille de la grille
+          const maxBugs = Math.floor(gridSize * gridSize * 0.2);
+          bugCountSlider.max = maxBugs;
+
+          if (bugCount > maxBugs) {
+            bugCount = maxBugs;
+            bugCountSlider.value = bugCount;
+            bugCountValue.textContent = bugCount;
+          }
+        });
+
+        bugCountSlider.addEventListener("input", function () {
+          bugCount = parseInt(this.value);
+          bugCountValue.textContent = bugCount;
+        });
+
+        themeToggle.addEventListener("change", function () {
+          darkMode = !this.checked;
+          updateDisplay();
+
+          // Mettre à jour les couleurs de fond
+          if (darkMode) {
+            document.body.classList.add("bg-gray-900");
+            document.body.classList.remove("bg-gray-100");
+          } else {
+            document.body.classList.remove("bg-gray-900");
+            document.body.classList.add("bg-gray-100");
+          }
+        });
+
+        difficultyRadios.forEach((radio) => {
+          radio.addEventListener("change", function () {
+            if (this.checked) {
+              switch (this.value) {
+                case "beginner":
+                  gridSize = 8;
+                  bugCount = 10;
+                  break;
+                case "intermediate":
+                  gridSize = 16;
+                  bugCount = 40;
+                  break;
+                case "expert":
+                  gridSize = 30;
+                  bugCount = 99;
+                  break;
+              }
+
+              gridSizeSlider.value = gridSize;
+              gridSizeValue.textContent = `${gridSize}×${gridSize}`;
+              bugCountSlider.value = bugCount;
+              bugCountValue.textContent = bugCount;
+            }
+          });
+        });
+
+        applySettingsBtn.addEventListener("click", function () {
+          initGame();
+        });
+
+        playAgainBtn.addEventListener("click", function () {
+          endGameModal.classList.add("hidden");
+          initGame();
+        });
+
+        shareScoreBtn.addEventListener("click", function () {
+          const difficulty = finalDifficultyElement.textContent;
+          const time = finalTimeElement.textContent;
+          const message = `J'ai terminé une partie de Bug Finder en difficulté ${difficulty} avec un temps de ${time}!`;
+
+          // Simuler le partage (dans un vrai projet, utiliser l'API Web Share)
+          alert(`Partage: ${message}`);
+        });
+
+        // Fermer le modal en cliquant à l'extérieur
+        endGameModal.addEventListener("click", function (e) {
+          if (e.target === endGameModal) {
+            endGameModal.classList.add("hidden");
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

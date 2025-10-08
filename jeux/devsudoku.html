@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SudokuDev</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: { primary: "#0ea5e9", secondary: "#22c55e" },
+            borderRadius: {
+              none: "0px",
+              sm: "4px",
+              DEFAULT: "8px",
+              md: "12px",
+              lg: "16px",
+              xl: "20px",
+              "2xl": "24px",
+              "3xl": "32px",
+              full: "9999px",
+              button: "8px",
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
+    />
+    <style>
+      :where([class^="ri-"])::before { content: "\f3c2"; }
+      body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f9fafb;
+      }
+      .sudoku-grid {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      grid-template-rows: repeat(9, 1fr);
+      gap: 1px;
+      max-width: 540px;
+      width: 100%;
+      aspect-ratio: 1/1;
+      }
+      .sudoku-cell {
+      background-color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      border: 1px solid #e5e7eb;
+      cursor: pointer;
+      transition: all 0.2s;
+      }
+      .sudoku-cell.prefilled {
+      font-weight: 600;
+      color: #1f2937;
+      }
+      .sudoku-cell.selected {
+      background-color: #eff6ff;
+      border-color: #3b82f6;
+      }
+      .sudoku-cell.highlighted {
+      background-color: #f3f4f6;
+      }
+      .sudoku-cell.error {
+      color: #ef4444;
+      }
+      .sudoku-cell.same-number {
+      background-color: #e0f2fe;
+      }
+      .block-border-right {
+      border-right: 2px solid #4b5563;
+      }
+      .block-border-bottom {
+      border-bottom: 2px solid #4b5563;
+      }
+      .notes-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      font-size: 0.6rem;
+      color: #6b7280;
+      }
+      .note {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      }
+      .numpad-button {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      background-color: white;
+      border: 1px solid #e5e7eb;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      }
+      .numpad-button:hover {
+      background-color: #f3f4f6;
+      }
+      .numpad-button.active {
+      background-color: #4f46e5;
+      color: white;
+      }
+      .action-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      background-color: white;
+      border: 1px solid #e5e7eb;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      }
+      .action-button:hover {
+      background-color: #f3f4f6;
+      }
+      .difficulty-button {
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      }
+      .difficulty-button.active {
+      background-color: #4f46e5;
+      color: white;
+      }
+      input[type="checkbox"] {
+      appearance: none;
+      width: 3.5rem;
+      height: 1.75rem;
+      background-color: #e5e7eb;
+      border-radius: 9999px;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s;
+      }
+      input[type="checkbox"]::before {
+      content: "";
+      position: absolute;
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 50%;
+      background-color: white;
+      top: 0.125rem;
+      left: 0.125rem;
+      transition: all 0.3s;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      }
+      input[type="checkbox"]:checked {
+      background-color: #4f46e5;
+      }
+      input[type="checkbox"]:checked::before {
+      transform: translateX(1.75rem);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="min-h-screen flex flex-col bg-slate-50">
+      <header class="bg-slate-900 text-white">
+        <div
+          class="container mx-auto px-4 py-4 flex justify-between items-center"
+        >
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 flex items-center justify-center text-primary">
+              <i class="ri-code-box-line ri-lg"></i>
+            </div>
+            <h1 class="text-3xl font-['Pacifico'] text-primary">DevSudoku</h1>
+          </div>
+          <div class="flex items-center gap-4">
+            <button
+              id="new-game-btn"
+              class="text-sm font-medium text-slate-300 hover:text-primary transition-colors !rounded-button whitespace-nowrap flex items-center gap-2"
+            >
+              <i class="ri-refresh-line"></i>
+              <span>Nouvelle Partie</span>
+            </button>
+            <button
+              id="rules-btn"
+              class="text-sm font-medium text-slate-300 hover:text-primary transition-colors !rounded-button whitespace-nowrap flex items-center gap-2"
+            >
+              <i class="ri-file-list-line"></i>
+              <span>Documentation</span>
+            </button>
+            <button
+              id="settings-btn"
+              class="w-8 h-8 flex items-center justify-center text-slate-300 hover:text-primary transition-colors"
+            >
+              <i class="ri-terminal-box-line ri-lg"></i>
+            </button>
+          </div>
+        </div>
+      </header>
+      <main
+        class="flex-1 container mx-auto px-4 py-8 flex flex-col items-center"
+      >
+        <div
+          class="w-full max-w-4xl bg-white shadow-lg rounded-lg p-6 mb-8 border border-slate-200"
+        >
+          <div
+            class="flex flex-col md:flex-row gap-8 items-center md:items-start"
+          >
+            <div class="flex-1 flex flex-col items-center">
+              <div class="mb-6 flex flex-col items-center w-full">
+                <div class="flex gap-2 mb-4 bg-slate-100 p-1 rounded-full">
+                  <button
+                    class="difficulty-button !rounded-full whitespace-nowrap px-4 py-1"
+                    data-difficulty="easy"
+                  >
+                    Débutant
+                  </button>
+                  <button
+                    class="difficulty-button !rounded-full whitespace-nowrap px-4 py-1"
+                    data-difficulty="medium"
+                  >
+                    Intermédiaire
+                  </button>
+                  <button
+                    class="difficulty-button !rounded-full whitespace-nowrap px-4 py-1"
+                    data-difficulty="hard"
+                  >
+                    Expert
+                  </button>
+                </div>
+                <div
+                  class="flex items-center gap-6 bg-slate-900 text-white px-6 py-2 rounded-lg w-full justify-center"
+                >
+                  <div class="flex items-center gap-2">
+                    <div
+                      class="w-8 h-8 flex items-center justify-center text-primary"
+                    >
+                      <i class="ri-timer-line ri-lg"></i>
+                    </div>
+                    <span id="timer" class="text-lg font-medium font-mono"
+                      >00:00</span
+                    >
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <div
+                      class="w-8 h-8 flex items-center justify-center text-red-500"
+                    >
+                      <i class="ri-bug-line ri-lg"></i>
+                    </div>
+                    <span id="errors" class="text-lg font-medium font-mono"
+                      >0</span
+                    >
+                  </div>
+                </div>
+              </div>
+              <div
+                class="sudoku-grid border-2 border-gray-800 mb-6"
+                id="sudoku-grid"
+              ></div>
+              <div class="flex flex-wrap gap-2 justify-center mb-6">
+                <button class="numpad-button" data-number="1">1</button>
+                <button class="numpad-button" data-number="2">2</button>
+                <button class="numpad-button" data-number="3">3</button>
+                <button class="numpad-button" data-number="4">4</button>
+                <button class="numpad-button" data-number="5">5</button>
+                <button class="numpad-button" data-number="6">6</button>
+                <button class="numpad-button" data-number="7">7</button>
+                <button class="numpad-button" data-number="8">8</button>
+                <button class="numpad-button" data-number="9">9</button>
+              </div>
+            </div>
+            <div class="w-full md:w-auto flex flex-col gap-4">
+              <div class="bg-slate-900 p-4 rounded-lg text-white">
+                <h3 class="font-medium text-lg mb-3 flex items-center gap-2">
+                  <i class="ri-function-line"></i>
+                  <span>Fonctions</span>
+                </h3>
+                <div class="flex flex-col gap-3">
+                  <button
+                    class="action-button !rounded-button whitespace-nowrap bg-slate-800 hover:bg-slate-700 text-white border-none"
+                  >
+                    <div class="w-5 h-5 flex items-center justify-center">
+                      <i class="ri-delete-bin-line"></i>
+                    </div>
+                    <span>Effacer</span>
+                  </button>
+                  <button
+                    class="action-button !rounded-button whitespace-nowrap bg-slate-800 hover:bg-slate-700 text-white border-none"
+                  >
+                    <div class="w-5 h-5 flex items-center justify-center">
+                      <i class="ri-edit-line"></i>
+                    </div>
+                    <span>Mode Notes</span>
+                  </button>
+                  <button
+                    class="action-button !rounded-button whitespace-nowrap bg-slate-800 hover:bg-slate-700 text-white border-none"
+                  >
+                    <div class="w-5 h-5 flex items-center justify-center">
+                      <i class="ri-code-line"></i>
+                    </div>
+                    <span>Indice</span>
+                  </button>
+                  <button
+                    class="action-button !rounded-button whitespace-nowrap bg-slate-800 hover:bg-slate-700 text-white border-none"
+                  >
+                    <div class="w-5 h-5 flex items-center justify-center">
+                      <i class="ri-bug-line"></i>
+                    </div>
+                    <span>Vérifier</span>
+                  </button>
+                  <button
+                    class="action-button !rounded-button whitespace-nowrap bg-slate-800 hover:bg-slate-700 text-white border-none"
+                  >
+                    <div class="w-5 h-5 flex items-center justify-center">
+                      <i class="ri-refresh-line"></i>
+                    </div>
+                    <span>Recommencer</span>
+                  </button>
+                </div>
+              </div>
+              <div class="bg-slate-900 p-4 rounded-lg text-white">
+                <h3 class="font-medium text-lg mb-3 flex items-center gap-2">
+                  <i class="ri-settings-line"></i>
+                  <span>Configuration</span>
+                </h3>
+                <div class="flex flex-col gap-3">
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm">Activer le surlignage</span>
+                    <input type="checkbox" checked class="toggle" />
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm">Afficher les erreurs</span>
+                    <input type="checkbox" checked class="toggle" />
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm">Effacement auto des notes</span>
+                    <input type="checkbox" checked class="toggle" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          id="message"
+          class="hidden bg-slate-900 text-green-400 p-4 rounded-lg text-center max-w-md font-mono"
+        >
+          Compilation réussie ! Tous les tests sont passés.
+        </div>
+      </main>
+      <footer class="bg-slate-900 text-slate-400 py-4">
+        <div class="container mx-auto px-4 text-center text-sm">
+          <p class="flex items-center justify-center gap-2">
+            <i class="ri-code-line"></i>
+            <span>© 2025 SudokuDev. Open source avec</span>
+            <i class="ri-heart-fill text-red-500"></i>
+          </p>
+        </div>
+      </footer>
+    </div>
+    <div
+      id="rules-modal"
+      class="fixed inset-0 bg-slate-900 bg-opacity-90 flex items-center justify-center z-50 hidden"
+    >
+      <div
+        class="bg-white rounded-lg max-w-lg w-full p-6 max-h-[80vh] overflow-y-auto border border-slate-200"
+      >
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-semibold flex items-center gap-2">
+            <i class="ri-file-code-line text-primary"></i>
+            <span>Documentation</span>
+          </h2>
+          <button
+            id="close-rules"
+            class="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-slate-700"
+          >
+            <i class="ri-close-line ri-lg"></i>
+          </button>
+        </div>
+        <div class="prose">
+          <div
+            class="bg-slate-900 text-slate-300 p-4 rounded-lg font-mono text-sm mb-4"
+          >
+            <p>
+              // SudokuDev est un défi de programmation où vous devez déboguer
+              une grille 9x9
+            </p>
+            <p>
+              // en utilisant les chiffres de 1 à 9 comme outils de débogage.
+            </p>
+          </div>
+          <h3 class="flex items-center gap-2">
+            <i class="ri-git-branch-line text-primary"></i>
+            <span>Règles Principales :</span>
+          </h3>
+          <ul class="list-none pl-0">
+            <li class="flex items-center gap-2 mb-2">
+              <i class="ri-checkbox-circle-line text-green-500"></i>
+              <span>Chaque ligne doit contenir des valeurs uniques (1-9)</span>
+            </li>
+            <li class="flex items-center gap-2 mb-2">
+              <i class="ri-checkbox-circle-line text-green-500"></i>
+              <span
+                >Chaque colonne doit contenir des valeurs uniques (1-9)</span
+              >
+            </li>
+            <li class="flex items-center gap-2 mb-2">
+              <i class="ri-checkbox-circle-line text-green-500"></i>
+              <span
+                >Chaque bloc 3x3 doit contenir des valeurs uniques (1-9)</span
+              >
+            </li>
+          </ul>
+          <h3 class="flex items-center gap-2">
+            <i class="ri-code-line text-primary"></i>
+            <span>Comment Jouer :</span>
+          </h3>
+          <ol class="list-none pl-0">
+            <li class="flex items-center gap-2 mb-2">
+              <div
+                class="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-sm"
+              >
+                1
+              </div>
+              <span>Sélectionnez une case vide pour commencer</span>
+            </li>
+            <li class="flex items-center gap-2 mb-2">
+              <div
+                class="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-sm"
+              >
+                2
+              </div>
+              <span
+                >Utilisez le pavé numérique pour saisir les valeurs (1-9)</span
+              >
+            </li>
+            <li class="flex items-center gap-2 mb-2">
+              <div
+                class="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-sm"
+              >
+                3
+              </div>
+              <span>Activez le Mode Notes pour les valeurs potentielles</span>
+            </li>
+            <li class="flex items-center gap-2 mb-2">
+              <div
+                class="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-sm"
+              >
+                4
+              </div>
+              <span>Utilisez Effacer pour supprimer des valeurs</span>
+            </li>
+            <li class="flex items-center gap-2 mb-2">
+              <div
+                class="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-sm"
+              >
+                5
+              </div>
+              <span
+                >La fonction Indice fournit des aides (limitées à 3 par
+                partie)</span
+              >
+            </li>
+          </ol>
+        </div>
+      </div>
+    </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Générer la grille de Sudoku
+        const grid = document.getElementById("sudoku-grid");
+        const sudokuGrid = generateSudoku();
+        const solution = [...sudokuGrid.map((row) => [...row])];
+        const playableGrid = createPlayableGrid(sudokuGrid, 40); // 40 cases visibles
+        let selectedCell = null;
+        let noteMode = false;
+        let startTime = new Date();
+        let timerInterval;
+        let errorCount = 0;
+        let highlightSameNumbers = true;
+        // Initialiser le timer
+        startTimer();
+        // Créer la grille visuelle
+        for (let row = 0; row < 9; row++) {
+          for (let col = 0; col < 9; col++) {
+            const cell = document.createElement("div");
+            cell.classList.add("sudoku-cell");
+            // Ajouter des bordures pour les blocs 3x3
+            if (col === 2 || col === 5) {
+              cell.classList.add("block-border-right");
+            }
+            if (row === 2 || row === 5) {
+              cell.classList.add("block-border-bottom");
+            }
+            cell.dataset.row = row;
+            cell.dataset.col = col;
+            if (playableGrid[row][col] !== 0) {
+              cell.textContent = playableGrid[row][col];
+              cell.classList.add("prefilled");
+            } else {
+              // Conteneur pour les notes
+              const notesContainer = document.createElement("div");
+              notesContainer.classList.add("notes-container");
+              for (let i = 1; i <= 9; i++) {
+                const note = document.createElement("div");
+                note.classList.add("note");
+                note.dataset.number = i;
+                notesContainer.appendChild(note);
+              }
+              cell.appendChild(notesContainer);
+              cell.addEventListener("click", () => {
+                selectCell(cell);
+              });
+            }
+            grid.appendChild(cell);
+          }
+        }
+        // Gestion du pavé numérique
+        const numpadButtons = document.querySelectorAll(".numpad-button");
+        numpadButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            const number = button.dataset.number;
+            if (selectedCell && !selectedCell.classList.contains("prefilled")) {
+              enterNumber(selectedCell, number);
+            }
+          });
+        });
+        // Gestion des touches clavier
+        document.addEventListener("keydown", (e) => {
+          if (selectedCell && !selectedCell.classList.contains("prefilled")) {
+            if (e.key >= "1" && e.key <= "9") {
+              enterNumber(selectedCell, e.key);
+            } else if (e.key === "Backspace" || e.key === "Delete") {
+              clearCell(selectedCell);
+            }
+          }
+        });
+        // Bouton mode notes
+        const noteButton = document.querySelector(".action-button:nth-child(2)");
+        noteButton.addEventListener("click", () => {
+          noteMode = !noteMode;
+          noteButton.classList.toggle("bg-gray-100");
+          if (noteMode) {
+            noteButton.querySelector("span").textContent = "Mode chiffres";
+          } else {
+            noteButton.querySelector("span").textContent = "Mode notes";
+          }
+        });
+        // Bouton effacer
+        const eraseButton = document.querySelector(".action-button:nth-child(1)");
+        eraseButton.addEventListener("click", () => {
+          if (selectedCell && !selectedCell.classList.contains("prefilled")) {
+            clearCell(selectedCell);
+          }
+        });
+        // Bouton indice
+        const hintButton = document.querySelector(".action-button:nth-child(3)");
+        hintButton.addEventListener("click", () => {
+          giveHint();
+        });
+        // Bouton vérifier
+        const checkButton = document.querySelector(".action-button:nth-child(4)");
+        checkButton.addEventListener("click", () => {
+          checkSolution();
+        });
+        // Bouton recommencer
+        const restartButton = document.querySelector(".action-button:nth-child(5)");
+        restartButton.addEventListener("click", () => {
+          restartGame();
+        });
+        // Bouton nouveau jeu
+        const newGameButton = document.getElementById("new-game-btn");
+        newGameButton.addEventListener("click", () => {
+          if (confirm("Êtes-vous sûr de vouloir commencer une nouvelle partie ?")) {
+            location.reload();
+          }
+        });
+        // Gestion des règles
+        const rulesButton = document.getElementById("rules-btn");
+        const rulesModal = document.getElementById("rules-modal");
+        const closeRulesButton = document.getElementById("close-rules");
+        rulesButton.addEventListener("click", () => {
+          rulesModal.classList.remove("hidden");
+        });
+        closeRulesButton.addEventListener("click", () => {
+          rulesModal.classList.add("hidden");
+        });
+        // Fermer la modal en cliquant à l'extérieur
+        rulesModal.addEventListener("click", (e) => {
+          if (e.target === rulesModal) {
+            rulesModal.classList.add("hidden");
+          }
+        });
+        // Fonctions
+        function selectCell(cell) {
+          // Supprimer la sélection précédente
+          if (selectedCell) {
+            selectedCell.classList.remove("selected");
+          }
+          // Supprimer les surlignages
+          const allCells = document.querySelectorAll(".sudoku-cell");
+          allCells.forEach((c) => {
+            c.classList.remove("highlighted");
+            c.classList.remove("same-number");
+          });
+          // Sélectionner la nouvelle cellule
+          selectedCell = cell;
+          cell.classList.add("selected");
+          if (highlightSameNumbers) {
+            // Surligner la ligne, colonne et bloc
+            const row = parseInt(cell.dataset.row);
+            const col = parseInt(cell.dataset.col);
+            allCells.forEach((c) => {
+              const cRow = parseInt(c.dataset.row);
+              const cCol = parseInt(c.dataset.col);
+              // Même ligne ou colonne
+              if (cRow === row || cCol === col) {
+                c.classList.add("highlighted");
+              }
+              // Même bloc 3x3
+              const blockRow = Math.floor(row / 3);
+              const blockCol = Math.floor(col / 3);
+              const cBlockRow = Math.floor(cRow / 3);
+              const cBlockCol = Math.floor(cCol / 3);
+              if (blockRow === cBlockRow && blockCol === cBlockCol) {
+                c.classList.add("highlighted");
+              }
+              // Même nombre
+              const cellValue = cell.textContent;
+              if (
+                cellValue &&
+                cellValue === c.textContent &&
+                !c.classList.contains("notes-container")
+              ) {
+                c.classList.add("same-number");
+              }
+            });
+          }
+        }
+        function enterNumber(cell, number) {
+          const row = parseInt(cell.dataset.row);
+          const col = parseInt(cell.dataset.col);
+          if (noteMode) {
+            // Mode notes
+            const noteElements = cell.querySelectorAll(".note");
+            const noteElement = Array.from(noteElements).find(
+              (note) => note.dataset.number === number,
+            );
+            if (noteElement) {
+              if (noteElement.textContent === number) {
+                noteElement.textContent = "";
+              } else {
+                noteElement.textContent = number;
+              }
+            }
+            // Effacer le chiffre principal s'il existe
+            if (cell.textContent && !cell.querySelector(".notes-container")) {
+              cell.textContent = "";
+              const notesContainer = document.createElement("div");
+              notesContainer.classList.add("notes-container");
+              for (let i = 1; i <= 9; i++) {
+                const note = document.createElement("div");
+                note.classList.add("note");
+                note.dataset.number = i;
+                if (i.toString() === number) {
+                  note.textContent = number;
+                }
+                notesContainer.appendChild(note);
+              }
+              cell.appendChild(notesContainer);
+            }
+          } else {
+            // Mode chiffre normal
+            const notesContainer = cell.querySelector(".notes-container");
+            if (notesContainer) {
+              cell.removeChild(notesContainer);
+            }
+            cell.textContent = number;
+            // Vérifier si le chiffre est correct
+            if (solution[row][col].toString() !== number) {
+              cell.classList.add("error");
+              errorCount++;
+              document.getElementById("errors").textContent = errorCount;
+            } else {
+              cell.classList.remove("error");
+            }
+            // Vérifier si la grille est complète
+            checkCompletion();
+          }
+          // Mettre à jour les surlignages
+          selectCell(cell);
+        }
+        function clearCell(cell) {
+          // Supprimer le contenu
+          cell.textContent = "";
+          cell.classList.remove("error");
+          // Recréer le conteneur de notes
+          const notesContainer = document.createElement("div");
+          notesContainer.classList.add("notes-container");
+          for (let i = 1; i <= 9; i++) {
+            const note = document.createElement("div");
+            note.classList.add("note");
+            note.dataset.number = i;
+            notesContainer.appendChild(note);
+          }
+          cell.appendChild(notesContainer);
+        }
+        function giveHint() {
+          // Trouver une cellule vide aléatoire
+          const emptyCells = [];
+          const allCells = document.querySelectorAll(".sudoku-cell:not(.prefilled)");
+          allCells.forEach((cell) => {
+            if (!cell.textContent || cell.querySelector(".notes-container")) {
+              emptyCells.push(cell);
+            }
+          });
+          if (emptyCells.length > 0) {
+            const randomCell =
+              emptyCells[Math.floor(Math.random() * emptyCells.length)];
+            const row = parseInt(randomCell.dataset.row);
+            const col = parseInt(randomCell.dataset.col);
+            // Remplir avec la solution correcte
+            selectCell(randomCell);
+            const correctValue = solution[row][col].toString();
+            // Supprimer le conteneur de notes s'il existe
+            const notesContainer = randomCell.querySelector(".notes-container");
+            if (notesContainer) {
+              randomCell.removeChild(notesContainer);
+            }
+            randomCell.textContent = correctValue;
+            randomCell.classList.add("prefilled");
+            // Vérifier si la grille est complète
+            checkCompletion();
+          }
+        }
+        function checkSolution() {
+          let isCorrect = true;
+          const allCells = document.querySelectorAll(".sudoku-cell");
+          allCells.forEach((cell) => {
+            const row = parseInt(cell.dataset.row);
+            const col = parseInt(cell.dataset.col);
+            // Ignorer les cellules vides ou avec des notes
+            if (!cell.textContent || cell.querySelector(".notes-container")) {
+              isCorrect = false;
+              return;
+            }
+            // Vérifier si la valeur est correcte
+            if (cell.textContent !== solution[row][col].toString()) {
+              cell.classList.add("error");
+              isCorrect = false;
+            } else {
+              cell.classList.remove("error");
+            }
+          });
+          if (isCorrect) {
+            showCompletionMessage();
+          } else {
+            alert(
+              "Il y a encore des erreurs dans votre grille. Continuez à chercher !",
+            );
+          }
+        }
+        function checkCompletion() {
+          let isComplete = true;
+          const allCells = document.querySelectorAll(".sudoku-cell");
+          allCells.forEach((cell) => {
+            const row = parseInt(cell.dataset.row);
+            const col = parseInt(cell.dataset.col);
+            // Vérifier si la cellule est vide ou incorrecte
+            if (
+              !cell.textContent ||
+              cell.querySelector(".notes-container") ||
+              cell.textContent !== solution[row][col].toString()
+            ) {
+              isComplete = false;
+            }
+          });
+          if (isComplete) {
+            showCompletionMessage();
+          }
+        }
+        function showCompletionMessage() {
+          clearInterval(timerInterval);
+          const message = document.getElementById("message");
+          message.classList.remove("hidden");
+          // Ajouter le temps final au message
+          const timerElement = document.getElementById("timer");
+          message.textContent = `Félicitations ! Vous avez complété le Sudoku en ${timerElement.textContent} avec ${errorCount} erreurs.`;
+        }
+        function restartGame() {
+          if (confirm("Êtes-vous sûr de vouloir recommencer cette partie ?")) {
+            const allCells = document.querySelectorAll(
+              ".sudoku-cell:not(.prefilled)",
+            );
+            allCells.forEach((cell) => {
+              clearCell(cell);
+            });
+            // Réinitialiser le compteur d'erreurs
+            errorCount = 0;
+            document.getElementById("errors").textContent = errorCount;
+            // Réinitialiser le timer
+            startTime = new Date();
+            // Cacher le message de complétion
+            const message = document.getElementById("message");
+            message.classList.add("hidden");
+          }
+        }
+        function startTimer() {
+          timerInterval = setInterval(() => {
+            const now = new Date();
+            const diff = now - startTime;
+            const minutes = Math.floor(diff / 60000);
+            const seconds = Math.floor((diff % 60000) / 1000);
+            const formattedMinutes = minutes.toString().padStart(2, "0");
+            const formattedSeconds = seconds.toString().padStart(2, "0");
+            document.getElementById("timer").textContent =
+              `${formattedMinutes}:${formattedSeconds}`;
+          }, 1000);
+        }
+        // Fonction pour générer une grille de Sudoku valide
+        function generateSudoku() {
+          // Créer une grille vide
+          const grid = Array(9)
+            .fill()
+            .map(() => Array(9).fill(0));
+          // Remplir la diagonale principale (blocs 3x3)
+          fillDiagonal(grid);
+          // Résoudre le reste de la grille
+          solveSudoku(grid);
+          return grid;
+        }
+        function fillDiagonal(grid) {
+          for (let i = 0; i < 9; i += 3) {
+            fillBox(grid, i, i);
+          }
+        }
+        function fillBox(grid, row, col) {
+          const nums = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+          shuffleArray(nums);
+          let index = 0;
+          for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+              grid[row + i][col + j] = nums[index++];
+            }
+          }
+        }
+        function solveSudoku(grid) {
+          const emptyCell = findEmptyCell(grid);
+          if (!emptyCell) {
+            return true; // La grille est résolue
+          }
+          const [row, col] = emptyCell;
+          for (let num = 1; num <= 9; num++) {
+            if (isValid(grid, row, col, num)) {
+              grid[row][col] = num;
+              if (solveSudoku(grid)) {
+                return true;
+              }
+              grid[row][col] = 0; // Backtrack
+            }
+          }
+          return false;
+        }
+        function findEmptyCell(grid) {
+          for (let row = 0; row < 9; row++) {
+            for (let col = 0; col < 9; col++) {
+              if (grid[row][col] === 0) {
+                return [row, col];
+              }
+            }
+          }
+          return null;
+        }
+        function isValid(grid, row, col, num) {
+          // Vérifier la ligne
+          for (let i = 0; i < 9; i++) {
+            if (grid[row][i] === num) {
+              return false;
+            }
+          }
+          // Vérifier la colonne
+          for (let i = 0; i < 9; i++) {
+            if (grid[i][col] === num) {
+              return false;
+            }
+          }
+          // Vérifier le bloc 3x3
+          const boxRow = Math.floor(row / 3) * 3;
+          const boxCol = Math.floor(col / 3) * 3;
+          for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+              if (grid[boxRow + i][boxCol + j] === num) {
+                return false;
+              }
+            }
+          }
+          return true;
+        }
+        function createPlayableGrid(grid, difficulty) {
+          const playableGrid = grid.map((row) => [...row]);
+          const totalCells = 81;
+          let visibleCount;
+          switch (difficulty) {
+            case "easy":
+              visibleCount = 45; // Débutant: plus de chiffres visibles
+              break;
+            case "medium":
+              visibleCount = 35; // Intermédiaire
+              break;
+            case "hard":
+              visibleCount = 25; // Expert: moins de chiffres visibles
+              break;
+            default:
+              visibleCount = 35;
+          }
+          const cellsToHide = totalCells - visibleCount;
+          const positions = [];
+          for (let row = 0; row < 9; row++) {
+            for (let col = 0; col < 9; col++) {
+              positions.push([row, col]);
+            }
+          }
+          shuffleArray(positions);
+          for (let i = 0; i < cellsToHide; i++) {
+            const [row, col] = positions[i];
+            playableGrid[row][col] = 0;
+          }
+          return playableGrid;
+        }
+        // Ajouter la gestion des boutons de difficulté
+        document.addEventListener("DOMContentLoaded", function () {
+          const difficultyButtons = document.querySelectorAll(".difficulty-button");
+          const easyButton = document.querySelector(
+            '.difficulty-button[data-difficulty="easy"]',
+          );
+          const mediumButton = document.querySelector(
+            '.difficulty-button[data-difficulty="medium"]',
+          );
+          const hardButton = document.querySelector(
+            '.difficulty-button[data-difficulty="hard"]',
+          );
+          const handleDifficultyChange = (button) => {
+            // Retirer la classe active de tous les boutons
+            [easyButton, mediumButton, hardButton].forEach((btn) =>
+              btn.classList.remove("active"),
+            );
+
+            // Ajouter la classe active au bouton cliqué
+            button.classList.add("active");
+
+            // Redémarrer le jeu avec la nouvelle difficulté
+            if (
+              confirm(
+                "Voulez-vous commencer une nouvelle partie avec ce niveau de difficulté ?",
+              )
+            ) {
+              const difficulty = button.dataset.difficulty;
+              const newGrid = generateSudoku();
+              const newPlayableGrid = createPlayableGrid(newGrid, difficulty);
+              // Réinitialiser la grille
+              resetGrid(newPlayableGrid);
+            } else {
+              // Si l'utilisateur annule, restaurer l'état précédent
+              [easyButton, mediumButton, hardButton].forEach((btn) => {
+                btn.classList.toggle(
+                  "active",
+                  btn !== button && btn.classList.contains("active"),
+                );
+              });
+              button.classList.remove("active");
+            }
+          };
+          easyButton.addEventListener("click", () =>
+            handleDifficultyChange(easyButton),
+          );
+          mediumButton.addEventListener("click", () =>
+            handleDifficultyChange(mediumButton),
+          );
+          hardButton.addEventListener("click", () =>
+            handleDifficultyChange(hardButton),
+          );
+        });
+        function resetGrid(newPlayableGrid) {
+          const cells = document.querySelectorAll(".sudoku-cell");
+          cells.forEach((cell, index) => {
+            const row = Math.floor(index / 9);
+            const col = index % 9;
+            const value = newPlayableGrid[row][col];
+            cell.classList.remove("prefilled", "error");
+            cell.textContent = "";
+            if (value !== 0) {
+              cell.textContent = value;
+              cell.classList.add("prefilled");
+            } else {
+              const notesContainer = document.createElement("div");
+              notesContainer.classList.add("notes-container");
+              for (let i = 1; i <= 9; i++) {
+                const note = document.createElement("div");
+                note.classList.add("note");
+                note.dataset.number = i;
+                notesContainer.appendChild(note);
+              }
+              cell.appendChild(notesContainer);
+            }
+          });
+          // Réinitialiser le timer et les erreurs
+          errorCount = 0;
+          document.getElementById("errors").textContent = errorCount;
+          startTime = new Date();
+          document.getElementById("message").classList.add("hidden");
+        }
+        function shuffleArray(array) {
+          for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

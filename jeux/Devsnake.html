@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="fr">
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dev Snake - Code, Collect, Conquer</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>tailwind.config={theme:{extend:{colors:{primary:'#6366f1',secondary:'#8b5cf6'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+    <style>
+        :where([class^="ri-"])::before { content: "\f3c2"; }
+        
+        body {
+            font-family: 'Fira Code', monospace;
+            background-color: #0f172a;
+            color: #e2e8f0;
+        }
+        
+        .game-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            aspect-ratio: 1;
+            background-color: #1e293b;
+            overflow: hidden;
+        }
+        
+        .game-container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.05;
+            background-image: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 20px,
+                rgba(255, 255, 255, 0.1) 20px,
+                rgba(255, 255, 255, 0.1) 40px
+            );
+        }
+        
+        .game-container::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.05;
+            background-image: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 20px,
+                rgba(255, 255, 255, 0.1) 20px,
+                rgba(255, 255, 255, 0.1) 40px
+            );
+        }
+        
+        canvas {
+            position: relative;
+            z-index: 10;
+            display: block;
+        }
+        
+        .mode-selector {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+        }
+        
+        .mode-selector label {
+            transition: all 0.3s ease;
+        }
+        
+        .mode-selector input:checked + label {
+            background-color: #6366f1;
+            color: white;
+        }
+        
+        .custom-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .custom-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #334155;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #6366f1;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        .achievement {
+            background-color: #1e293b;
+            border-left: 3px solid #6366f1;
+        }
+        
+        .modal {
+            background-color: rgba(15, 23, 42, 0.9);
+        }
+        
+        .modal-content {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+        }
+        
+        .binary-bg {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.03);
+            font-size: 14px;
+            line-height: 1;
+            user-select: none;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            background: #334155;
+            border-radius: 5px;
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #6366f1;
+            cursor: pointer;
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #6366f1;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .game-controls button {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            transition: all 0.2s;
+        }
+        
+        .game-controls button:hover {
+            background-color: #334155;
+        }
+        
+        .game-controls button:active {
+            transform: scale(0.95);
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <header class="bg-[#0f172a] border-b border-[#334155] py-4">
+        <div class="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
+            <div class="flex items-center mb-4 md:mb-0">
+                <h1 class="text-3xl font-['Pacifico'] text-primary mr-2">Dev Snake</h1>
+                <p class="text-gray-400 text-sm">Code, Collect, Conquer</p>
+            </div>
+            
+            <div class="flex items-center gap-6">
+                <div class="flex flex-col items-center">
+                    <span class="text-xs text-gray-400">Score</span>
+                    <span id="current-score" class="text-xl font-bold">0</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs text-gray-400">Meilleur</span>
+                    <span id="best-score" class="text-xl font-bold">0</span>
+                </div>
+                <button id="settings-btn" class="w-10 h-10 flex items-center justify-center rounded-full bg-[#1e293b] hover:bg-[#334155] transition-colors">
+                    <i class="ri-settings-3-line ri-lg"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+    <main class="flex-grow container mx-auto px-4 py-8 flex flex-col lg:flex-row gap-8">
+        <section class="w-full lg:w-3/4 flex flex-col items-center">
+            <div class="mode-selector p-1 rounded-full mb-6 inline-flex">
+                <input type="radio" id="mode-classic" name="game-mode" class="hidden" checked>
+                <label for="mode-classic" class="px-4 py-2 rounded-full cursor-pointer text-sm font-medium !rounded-button whitespace-nowrap">Mode Classic</label>
+                
+                <input type="radio" id="mode-debug" name="game-mode" class="hidden">
+                <label for="mode-debug" class="px-4 py-2 rounded-full cursor-pointer text-sm font-medium !rounded-button whitespace-nowrap">Mode Debug</label>
+                
+                <input type="radio" id="mode-framework" name="game-mode" class="hidden">
+                <label for="mode-framework" class="px-4 py-2 rounded-full cursor-pointer text-sm font-medium !rounded-button whitespace-nowrap">Mode Framework</label>
+            </div>
+            
+            <div class="game-container rounded-lg shadow-xl relative mb-6">
+                <div class="binary-bg absolute top-0 left-0 w-full h-full overflow-hidden p-4"></div>
+                <canvas id="game-canvas" width="600" height="600"></canvas>
+            </div>
+            
+            <div class="game-controls flex flex-wrap justify-center gap-4">
+                <button id="start-btn" class="px-6 py-3 rounded-lg font-medium flex items-center gap-2 !rounded-button whitespace-nowrap">
+                    <i class="ri-play-fill ri-lg"></i>
+                    Commencer
+                </button>
+                <button id="pause-btn" class="px-6 py-3 rounded-lg font-medium flex items-center gap-2 !rounded-button whitespace-nowrap" disabled>
+                    <i class="ri-pause-fill ri-lg"></i>
+                    Pause
+                </button>
+                <button id="restart-btn" class="px-6 py-3 rounded-lg font-medium flex items-center gap-2 !rounded-button whitespace-nowrap" disabled>
+                    <i class="ri-restart-line ri-lg"></i>
+                    Recommencer
+                </button>
+            </div>
+        </section>
+        
+        <aside class="w-full lg:w-1/4">
+            <section class="bg-[#1e293b] rounded-lg p-6 mb-6">
+                <h2 class="text-xl font-bold mb-4 flex items-center">
+                    <span class="w-8 h-8 flex items-center justify-center bg-primary bg-opacity-20 rounded-lg mr-2">
+                        <i class="ri-gamepad-line"></i>
+                    </span>
+                    Comment jouer
+                </h2>
+                <div class="space-y-4">
+                    <p class="text-sm text-gray-300">Utilisez les touches fléchées pour diriger le serpent et collecter les éléments de code.</p>
+                    
+                    <div class="grid grid-cols-3 gap-2 my-4">
+                        <div class="col-start-2">
+                            <button class="w-full h-10 flex items-center justify-center bg-[#334155] rounded !rounded-button whitespace-nowrap">
+                                <i class="ri-arrow-up-s-line ri-lg"></i>
+                            </button>
+                        </div>
+                        <div></div>
+                        <div>
+                            <button class="w-full h-10 flex items-center justify-center bg-[#334155] rounded !rounded-button whitespace-nowrap">
+                                <i class="ri-arrow-left-s-line ri-lg"></i>
+                            </button>
+                        </div>
+                        <div>
+                            <button class="w-full h-10 flex items-center justify-center bg-[#334155] rounded !rounded-button whitespace-nowrap">
+                                <i class="ri-arrow-down-s-line ri-lg"></i>
+                            </button>
+                        </div>
+                        <div>
+                            <button class="w-full h-10 flex items-center justify-center bg-[#334155] rounded !rounded-button whitespace-nowrap">
+                                <i class="ri-arrow-right-s-line ri-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-sm font-medium mb-2">Modes de jeu:</h3>
+                        <ul class="text-xs text-gray-300 space-y-2">
+                            <li class="flex items-start">
+                                <span class="w-5 h-5 flex items-center justify-center mr-2 mt-0.5">
+                                    <i class="ri-code-line text-primary"></i>
+                                </span>
+                                <span><strong>Classic:</strong> Collectez des éléments de code pour grandir.</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="w-5 h-5 flex items-center justify-center mr-2 mt-0.5">
+                                    <i class="ri-bug-line text-red-400"></i>
+                                </span>
+                                <span><strong>Debug:</strong> Évitez les bugs tout en collectant du code.</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="w-5 h-5 flex items-center justify-center mr-2 mt-0.5">
+                                    <i class="ri-layout-grid-line text-green-400"></i>
+                                </span>
+                                <span><strong>Framework:</strong> Construisez des patterns spécifiques.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="bg-[#1e293b] rounded-lg p-6 mb-6">
+                <h2 class="text-xl font-bold mb-4 flex items-center">
+                    <span class="w-8 h-8 flex items-center justify-center bg-primary bg-opacity-20 rounded-lg mr-2">
+                        <i class="ri-award-line"></i>
+                    </span>
+                    Réalisations
+                </h2>
+                <ul class="space-y-3" id="achievements-list">
+                    <li class="achievement p-3 rounded flex items-center opacity-50">
+                        <span class="w-8 h-8 flex items-center justify-center bg-gray-700 rounded-full mr-3">
+                            <i class="ri-code-box-line"></i>
+                        </span>
+                        <div>
+                            <h3 class="text-sm font-medium">Premier Code</h3>
+                            <p class="text-xs text-gray-400">Collectez 10 éléments</p>
+                        </div>
+                    </li>
+                    <li class="achievement p-3 rounded flex items-center opacity-50">
+                        <span class="w-8 h-8 flex items-center justify-center bg-gray-700 rounded-full mr-3">
+                            <i class="ri-bug-line"></i>
+                        </span>
+                        <div>
+                            <h3 class="text-sm font-medium">Débogueur</h3>
+                            <p class="text-xs text-gray-400">Survivez 30s en mode Debug</p>
+                        </div>
+                    </li>
+                    <li class="achievement p-3 rounded flex items-center opacity-50">
+                        <span class="w-8 h-8 flex items-center justify-center bg-gray-700 rounded-full mr-3">
+                            <i class="ri-speed-line"></i>
+                        </span>
+                        <div>
+                            <h3 class="text-sm font-medium">Sprint Agile</h3>
+                            <p class="text-xs text-gray-400">Atteignez vitesse maximale</p>
+                        </div>
+                    </li>
+                </ul>
+            </section>
+            
+            <section class="bg-[#1e293b] rounded-lg p-6">
+                <h2 class="text-xl font-bold mb-4 flex items-center">
+                    <span class="w-8 h-8 flex items-center justify-center bg-primary bg-opacity-20 rounded-lg mr-2">
+                        <i class="ri-rocket-line"></i>
+                    </span>
+                    Power-ups
+                </h2>
+                <ul class="grid grid-cols-2 gap-3" id="powerups-list">
+                    <li class="p-3 bg-[#0f172a] rounded text-center opacity-50">
+                        <span class="w-10 h-10 inline-flex items-center justify-center bg-blue-500 bg-opacity-20 rounded-full mb-2">
+                            <i class="ri-timer-flash-line text-blue-400"></i>
+                        </span>
+                        <h3 class="text-xs font-medium">Ralentir</h3>
+                    </li>
+                    <li class="p-3 bg-[#0f172a] rounded text-center opacity-50">
+                        <span class="w-10 h-10 inline-flex items-center justify-center bg-green-500 bg-opacity-20 rounded-full mb-2">
+                            <i class="ri-shield-line text-green-400"></i>
+                        </span>
+                        <h3 class="text-xs font-medium">Bouclier</h3>
+                    </li>
+                    <li class="p-3 bg-[#0f172a] rounded text-center opacity-50">
+                        <span class="w-10 h-10 inline-flex items-center justify-center bg-purple-500 bg-opacity-20 rounded-full mb-2">
+                            <i class="ri-magic-line text-purple-400"></i>
+                        </span>
+                        <h3 class="text-xs font-medium">Double Score</h3>
+                    </li>
+                    <li class="p-3 bg-[#0f172a] rounded text-center opacity-50">
+                        <span class="w-10 h-10 inline-flex items-center justify-center bg-yellow-500 bg-opacity-20 rounded-full mb-2">
+                            <i class="ri-scissors-cut-line text-yellow-400"></i>
+                        </span>
+                        <h3 class="text-xs font-medium">Raccourcir</h3>
+                    </li>
+                </ul>
+            </section>
+        </aside>
+    </main>
+
+    <footer class="bg-[#0f172a] border-t border-[#334155] py-6">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <p class="text-sm text-gray-400">© 2025 Dev Snake | Version 1.0.0</p>
+                </div>
+                <div class="flex gap-4">
+                    <a href="#" class="w-8 h-8 flex items-center justify-center rounded-full bg-[#1e293b] hover:bg-[#334155] transition-colors">
+                        <i class="ri-github-line"></i>
+                    </a>
+                    <a href="#" class="w-8 h-8 flex items-center justify-center rounded-full bg-[#1e293b] hover:bg-[#334155] transition-colors">
+                        <i class="ri-twitter-x-line"></i>
+                    </a>
+                    <a href="#" class="w-8 h-8 flex items-center justify-center rounded-full bg-[#1e293b] hover:bg-[#334155] transition-colors">
+                        <i class="ri-linkedin-line"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="fixed inset-0 flex items-center justify-center z-50 modal hidden">
+        <div class="modal-content rounded-lg w-full max-w-md p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold">Paramètres</h2>
+                <button id="close-settings" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#334155]">
+                    <i class="ri-close-line ri-lg"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-sm font-medium mb-3">Difficulté</h3>
+                    <input type="range" id="difficulty-slider" min="1" max="5" value="3" class="w-full">
+                    <div class="flex justify-between text-xs text-gray-400 mt-1">
+                        <span>Facile</span>
+                        <span>Difficile</span>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-sm font-medium mb-3">Thème</h3>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm">Mode sombre</span>
+                        <label class="custom-switch">
+                            <input type="checkbox" checked id="theme-toggle">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-sm font-medium mb-3">Son</h3>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm">Effets sonores</span>
+                        <label class="custom-switch">
+                            <input type="checkbox" checked id="sound-toggle">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-sm font-medium mb-3">Contrôles</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">Haut</label>
+                            <button class="w-full h-9 bg-[#334155] rounded text-sm !rounded-button whitespace-nowrap">↑</button>
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">Bas</label>
+                            <button class="w-full h-9 bg-[#334155] rounded text-sm !rounded-button whitespace-nowrap">↓</button>
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">Gauche</label>
+                            <button class="w-full h-9 bg-[#334155] rounded text-sm !rounded-button whitespace-nowrap">←</button>
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">Droite</label>
+                            <button class="w-full h-9 bg-[#334155] rounded text-sm !rounded-button whitespace-nowrap">→</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="save-settings" class="w-full py-3 bg-primary hover:bg-primary/90 rounded-lg font-medium !rounded-button whitespace-nowrap">
+                    Sauvegarder
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div id="game-over-modal" class="fixed inset-0 flex items-center justify-center z-50 modal hidden">
+        <div class="modal-content rounded-lg w-full max-w-md p-6">
+            <h2 class="text-2xl font-bold text-center mb-2">Game Over</h2>
+            <p class="text-center text-gray-400 mb-6">Votre serpent a rencontré une erreur fatale!</p>
+            
+            <div class="bg-[#0f172a] rounded-lg p-4 mb-6">
+                <div class="flex justify-between mb-2">
+                    <span class="text-gray-400">Score final:</span>
+                    <span id="final-score" class="font-bold">0</span>
+                </div>
+                <div class="flex justify-between mb-2">
+                    <span class="text-gray-400">Éléments collectés:</span>
+                    <span id="items-collected" class="font-bold">0</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Temps de jeu:</span>
+                    <span id="play-time" class="font-bold">00:00</span>
+                </div>
+            </div>
+            
+            <div class="flex gap-4">
+                <button id="play-again" class="flex-1 py-3 bg-primary hover:bg-primary/90 rounded-lg font-medium !rounded-button whitespace-nowrap">
+                    Rejouer
+                </button>
+                <button id="share-score" class="flex-1 py-3 bg-[#334155] hover:bg-[#475569] rounded-lg font-medium !rounded-button whitespace-nowrap">
+                    Partager
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Binary background generator
+            const binaryBg = document.querySelector('.binary-bg');
+            generateBinaryBackground();
+            
+            function generateBinaryBackground() {
+                let binaryText = '';
+                for (let i = 0; i < 1000; i++) {
+                    binaryText += Math.random() > 0.5 ? '1' : '0';
+                    if (i % 50 === 0 && i > 0) binaryText += '<br>';
+                }
+                binaryBg.innerHTML = binaryText;
+            }
+            
+            // Game settings
+            const settings = {
+                difficulty: 3,
+                darkMode: true,
+                sound: true,
+                controls: {
+                    up: 'ArrowUp',
+                    down: 'ArrowDown',
+                    left: 'ArrowLeft',
+                    right: 'ArrowRight'
+                }
+            };
+            
+            // Modal controls
+            const settingsBtn = document.getElementById('settings-btn');
+            const settingsModal = document.getElementById('settings-modal');
+            const closeSettings = document.getElementById('close-settings');
+            const saveSettings = document.getElementById('save-settings');
+            const gameOverModal = document.getElementById('game-over-modal');
+            const playAgainBtn = document.getElementById('play-again');
+            const shareScoreBtn = document.getElementById('share-score');
+            
+            settingsBtn.addEventListener('click', () => {
+                settingsModal.classList.remove('hidden');
+            });
+            
+            closeSettings.addEventListener('click', () => {
+                settingsModal.classList.add('hidden');
+            });
+            
+            saveSettings.addEventListener('click', () => {
+                // Save settings logic would go here
+                settingsModal.classList.add('hidden');
+            });
+            
+            playAgainBtn.addEventListener('click', () => {
+                gameOverModal.classList.add('hidden');
+                startGame();
+            });
+            
+            shareScoreBtn.addEventListener('click', () => {
+                alert('Fonctionnalité de partage non implémentée');
+            });
+            
+            // Game controls
+            const startBtn = document.getElementById('start-btn');
+            const pauseBtn = document.getElementById('pause-btn');
+            const restartBtn = document.getElementById('restart-btn');
+            
+            startBtn.addEventListener('click', () => {
+                startGame();
+                startBtn.disabled = true;
+                pauseBtn.disabled = false;
+                restartBtn.disabled = false;
+            });
+            
+            pauseBtn.addEventListener('click', () => {
+                if (game.paused) {
+                    game.resume();
+                    pauseBtn.innerHTML = '<i class="ri-pause-fill ri-lg"></i> Pause';
+                } else {
+                    game.pause();
+                    pauseBtn.innerHTML = '<i class="ri-play-fill ri-lg"></i> Reprendre';
+                }
+            });
+            
+            restartBtn.addEventListener('click', () => {
+                startGame();
+                pauseBtn.innerHTML = '<i class="ri-pause-fill ri-lg"></i> Pause';
+            });
+            
+            // Game mode selection
+            const modeClassic = document.getElementById('mode-classic');
+            const modeDebug = document.getElementById('mode-debug');
+            const modeFramework = document.getElementById('mode-framework');
+            
+            modeClassic.addEventListener('change', () => {
+                if (modeClassic.checked) {
+                    game.setMode('classic');
+                }
+            });
+            
+            modeDebug.addEventListener('change', () => {
+                if (modeDebug.checked) {
+                    game.setMode('debug');
+                }
+            });
+            
+            modeFramework.addEventListener('change', () => {
+                if (modeFramework.checked) {
+                    game.setMode('framework');
+                }
+            });
+            
+            // Game Canvas Setup
+            const canvas = document.getElementById('game-canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Game assets
+            const assets = {
+                food: [
+                    { name: 'html', color: '#e34c26' },
+                    { name: 'css', color: '#264de4' },
+                    { name: 'js', color: '#f0db4f' },
+                    { name: 'php', color: '#777bb3' },
+                    { name: 'python', color: '#306998' },
+                    { name: 'ruby', color: '#cc342d' },
+                    { name: 'java', color: '#f89820' },
+                    { name: 'c', color: '#a8b9cc' }
+                ],
+                obstacles: [
+                    { name: 'bug', color: '#ff6b6b' },
+                    { name: 'error', color: '#ff9f43' },
+                    { name: 'crash', color: '#ee5253' }
+                ],
+                powerups: [
+                    { name: 'slow', color: '#48dbfb', duration: 5000 },
+                    { name: 'shield', color: '#1dd1a1', duration: 10000 },
+                    { name: 'double', color: '#c56cf0', duration: 8000 },
+                    { name: 'shrink', color: '#feca57', duration: 3000 }
+                ]
+            };
+            
+            // Game class
+            class SnakeGame {
+                constructor(canvas, ctx) {
+                    this.canvas = canvas;
+                    this.ctx = ctx;
+                    this.gridSize = 20;
+                    this.cellSize = this.canvas.width / this.gridSize;
+                    this.snake = [];
+                    this.food = null;
+                    this.obstacles = [];
+                    this.powerups = [];
+                    this.activePowerups = [];
+                    this.direction = 'right';
+                    this.nextDirection = 'right';
+                    this.score = 0;
+                    this.gameOver = false;
+                    this.paused = false;
+                    this.gameLoop = null;
+                    this.speed = 150;
+                    this.baseSpeed = 150;
+                    this.mode = 'classic';
+                    this.startTime = null;
+                    this.elapsedTime = 0;
+                    this.itemsCollected = 0;
+                    this.achievements = {
+                        firstCode: false,
+                        debugger: false,
+                        agileSprint: false
+                    };
+                    
+                    // Initialize event listeners
+                    this.initEventListeners();
+                }
+                
+                initEventListeners() {
+                    document.addEventListener('keydown', (e) => {
+                        if (this.gameOver || this.paused) return;
+                        
+                        switch(e.key) {
+                            case 'ArrowUp':
+                                if (this.direction !== 'down') this.nextDirection = 'up';
+                                break;
+                            case 'ArrowDown':
+                                if (this.direction !== 'up') this.nextDirection = 'down';
+                                break;
+                            case 'ArrowLeft':
+                                if (this.direction !== 'right') this.nextDirection = 'left';
+                                break;
+                            case 'ArrowRight':
+                                if (this.direction !== 'left') this.nextDirection = 'right';
+                                break;
+                        }
+                    });
+                }
+                
+                init() {
+                    // Reset game state
+                    this.snake = [
+                        {x: 10, y: 10},
+                        {x: 9, y: 10},
+                        {x: 8, y: 10}
+                    ];
+                    this.direction = 'right';
+                    this.nextDirection = 'right';
+                    this.score = 0;
+                    this.gameOver = false;
+                    this.paused = false;
+                    this.speed = this.baseSpeed;
+                    this.obstacles = [];
+                    this.powerups = [];
+                    this.activePowerups = [];
+                    this.startTime = Date.now();
+                    this.elapsedTime = 0;
+                    this.itemsCollected = 0;
+                    
+                    // Update UI
+                    document.getElementById('current-score').textContent = this.score;
+                    
+                    // Generate initial food
+                    this.generateFood();
+                    
+                    // Generate obstacles for debug mode
+                    if (this.mode === 'debug') {
+                        this.generateObstacles(5);
+                    }
+                    
+                    // Start game loop
+                    this.startGameLoop();
+                }
+                
+                startGameLoop() {
+                    if (this.gameLoop) clearInterval(this.gameLoop);
+                    
+                    this.gameLoop = setInterval(() => {
+                        if (!this.paused && !this.gameOver) {
+                            this.update();
+                            this.draw();
+                        }
+                    }, this.speed);
+                }
+                
+                update() {
+                    // Update direction
+                    this.direction = this.nextDirection;
+                    
+                    // Update elapsed time
+                    if (this.startTime) {
+                        this.elapsedTime = Date.now() - this.startTime;
+                    }
+                    
+                    // Move snake
+                    const head = {...this.snake[0]};
+                    
+                    switch(this.direction) {
+                        case 'up': head.y--; break;
+                        case 'down': head.y++; break;
+                        case 'left': head.x--; break;
+                        case 'right': head.x++; break;
+                    }
+                    
+                    // Check for collisions
+                    if (this.checkCollision(head)) {
+                        this.endGame();
+                        return;
+                    }
+                    
+                    // Add new head
+                    this.snake.unshift(head);
+                    
+                    // Check if food is eaten
+                    if (this.food && head.x === this.food.x && head.y === this.food.y) {
+                        this.eatFood();
+                    } else {
+                        // Remove tail if no food eaten
+                        this.snake.pop();
+                    }
+                    
+                    // Check for powerup collection
+                    this.checkPowerupCollection();
+                    
+                    // Update powerup timers
+                    this.updatePowerups();
+                    
+                    // Special mode logic
+                    if (this.mode === 'debug' && Math.random() < 0.05) {
+                        this.generateObstacles(1);
+                    }
+                    
+                    if (this.mode === 'framework' && this.score > 0 && this.score % 10 === 0) {
+                        // Framework mode special logic
+                        this.generatePattern();
+                    }
+                    
+                    // Randomly spawn powerups
+                    if (Math.random() < 0.01) {
+                        this.generatePowerup();
+                    }
+                    
+                    // Check achievements
+                    this.checkAchievements();
+                }
+                
+                checkCollision(head) {
+                    // Wall collision
+                    if (head.x < 0 || head.x >= this.gridSize || head.y < 0 || head.y >= this.gridSize) {
+                        return true;
+                    }
+                    
+                    // Self collision
+                    for (let i = 0; i < this.snake.length; i++) {
+                        if (head.x === this.snake[i].x && head.y === this.snake[i].y) {
+                            return true;
+                        }
+                    }
+                    
+                    // Obstacle collision
+                    if (this.hasActivePowerup('shield')) return false;
+                    
+                    for (let obstacle of this.obstacles) {
+                        if (head.x === obstacle.x && head.y === obstacle.y) {
+                            return true;
+                        }
+                    }
+                    
+                    return false;
+                }
+                
+                eatFood() {
+                    // Increase score
+                    const scoreIncrease = this.hasActivePowerup('double') ? 2 : 1;
+                    this.score += scoreIncrease;
+                    this.itemsCollected++;
+                    
+                    // Update UI
+                    document.getElementById('current-score').textContent = this.score;
+                    
+                    // Generate new food
+                    this.generateFood();
+                    
+                    // Speed up slightly
+                    if (this.baseSpeed > 50) {
+                        this.baseSpeed -= 2;
+                        if (!this.hasActivePowerup('slow')) {
+                            this.speed = this.baseSpeed;
+                            this.startGameLoop();
+                        }
+                    }
+                }
+                
+                generateFood() {
+                    let x, y;
+                    let validPosition = false;
+                    
+                    while (!validPosition) {
+                        x = Math.floor(Math.random() * this.gridSize);
+                        y = Math.floor(Math.random() * this.gridSize);
+                        
+                        validPosition = true;
+                        
+                        // Check if position overlaps with snake
+                        for (let segment of this.snake) {
+                            if (segment.x === x && segment.y === y) {
+                                validPosition = false;
+                                break;
+                            }
+                        }
+                        
+                        // Check if position overlaps with obstacles
+                        for (let obstacle of this.obstacles) {
+                            if (obstacle.x === x && obstacle.y === y) {
+                                validPosition = false;
+                                break;
+                            }
+                        }
+                        
+                        // Check if position overlaps with powerups
+                        for (let powerup of this.powerups) {
+                            if (powerup.x === x && powerup.y === y) {
+                                validPosition = false;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    // Select random food type
+                    const foodType = assets.food[Math.floor(Math.random() * assets.food.length)];
+                    
+                    this.food = {
+                        x,
+                        y,
+                        type: foodType.name,
+                        color: foodType.color
+                    };
+                }
+                
+                generateObstacles(count) {
+                    for (let i = 0; i < count; i++) {
+                        let x, y;
+                        let validPosition = false;
+                        
+                        while (!validPosition) {
+                            x = Math.floor(Math.random() * this.gridSize);
+                            y = Math.floor(Math.random() * this.gridSize);
+                            
+                            validPosition = true;
+                            
+                            // Check if position overlaps with snake
+                            for (let segment of this.snake) {
+                                if (segment.x === x && segment.y === y) {
+                                    validPosition = false;
+                                    break;
+                                }
+                            }
+                            
+                            // Check if position overlaps with food
+                            if (this.food && this.food.x === x && this.food.y === y) {
+                                validPosition = false;
+                            }
+                            
+                            // Check if position overlaps with other obstacles
+                            for (let obstacle of this.obstacles) {
+                                if (obstacle.x === x && obstacle.y === y) {
+                                    validPosition = false;
+                                    break;
+                                }
+                            }
+                            
+                            // Check if position overlaps with powerups
+                            for (let powerup of this.powerups) {
+                                if (powerup.x === x && powerup.y === y) {
+                                    validPosition = false;
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        // Select random obstacle type
+                        const obstacleType = assets.obstacles[Math.floor(Math.random() * assets.obstacles.length)];
+                        
+                        this.obstacles.push({
+                            x,
+                            y,
+                            type: obstacleType.name,
+                            color: obstacleType.color
+                        });
+                    }
+                }
+                
+                generatePowerup() {
+                    if (this.powerups.length >= 3) return;
+                    
+                    let x, y;
+                    let validPosition = false;
+                    
+                    while (!validPosition) {
+                        x = Math.floor(Math.random() * this.gridSize);
+                        y = Math.floor(Math.random() * this.gridSize);
+                        
+                        validPosition = true;
+                        
+                        // Check if position overlaps with snake
+                        for (let segment of this.snake) {
+                            if (segment.x === x && segment.y === y) {
+                                validPosition = false;
+                                break;
+                            }
+                        }
+                        
+                        // Check if position overlaps with food
+                        if (this.food && this.food.x === x && this.food.y === y) {
+                            validPosition = false;
+                        }
+                        
+                        // Check if position overlaps with obstacles
+                        for (let obstacle of this.obstacles) {
+                            if (obstacle.x === x && obstacle.y === y) {
+                                validPosition = false;
+                                break;
+                            }
+                        }
+                        
+                        // Check if position overlaps with other powerups
+                        for (let powerup of this.powerups) {
+                            if (powerup.x === x && powerup.y === y) {
+                                validPosition = false;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    // Select random powerup type
+                    const powerupType = assets.powerups[Math.floor(Math.random() * assets.powerups.length)];
+                    
+                    this.powerups.push({
+                        x,
+                        y,
+                        type: powerupType.name,
+                        color: powerupType.color,
+                        duration: powerupType.duration
+                    });
+                }
+                
+                checkPowerupCollection() {
+                    const head = this.snake[0];
+                    
+                    for (let i = 0; i < this.powerups.length; i++) {
+                        const powerup = this.powerups[i];
+                        
+                        if (head.x === powerup.x && head.y === powerup.y) {
+                            // Activate powerup
+                            this.activatePowerup(powerup);
+                            
+                            // Remove from powerups array
+                            this.powerups.splice(i, 1);
+                            break;
+                        }
+                    }
+                }
+                
+                activatePowerup(powerup) {
+                    const activePowerup = {
+                        type: powerup.type,
+                        color: powerup.color,
+                        endTime: Date.now() + powerup.duration
+                    };
+                    
+                    // Apply powerup effect
+                    switch (powerup.type) {
+                        case 'slow':
+                            this.speed = this.baseSpeed * 1.5;
+                            this.startGameLoop();
+                            break;
+                        case 'shrink':
+                            if (this.snake.length > 3) {
+                                this.snake = this.snake.slice(0, Math.ceil(this.snake.length / 2));
+                            }
+                            break;
+                    }
+                    
+                    // Add to active powerups
+                    this.activePowerups.push(activePowerup);
+                    
+                    // Update UI
+                    this.updatePowerupUI();
+                }
+                
+                updatePowerups() {
+                    const currentTime = Date.now();
+                    let powerupsChanged = false;
+                    
+                    for (let i = this.activePowerups.length - 1; i >= 0; i--) {
+                        const powerup = this.activePowerups[i];
+                        
+                        if (currentTime >= powerup.endTime) {
+                            // Deactivate powerup
+                            switch (powerup.type) {
+                                case 'slow':
+                                    this.speed = this.baseSpeed;
+                                    this.startGameLoop();
+                                    break;
+                            }
+                            
+                            // Remove from active powerups
+                            this.activePowerups.splice(i, 1);
+                            powerupsChanged = true;
+                        }
+                    }
+                    
+                    if (powerupsChanged) {
+                        this.updatePowerupUI();
+                    }
+                }
+                
+                updatePowerupUI() {
+                    const powerupsList = document.getElementById('powerups-list');
+                    const powerupItems = powerupsList.querySelectorAll('li');
+                    
+                    // Reset all powerups to inactive
+                    powerupItems.forEach(item => {
+                        item.classList.add('opacity-50');
+                    });
+                    
+                    // Highlight active powerups
+                    this.activePowerups.forEach(powerup => {
+                        const powerupElement = Array.from(powerupItems).find(item => 
+                            item.querySelector('h3').textContent.toLowerCase() === this.getPowerupDisplayName(powerup.type)
+                        );
+                        
+                        if (powerupElement) {
+                            powerupElement.classList.remove('opacity-50');
+                        }
+                    });
+                }
+                
+                getPowerupDisplayName(type) {
+                    switch (type) {
+                        case 'slow': return 'ralentir';
+                        case 'shield': return 'bouclier';
+                        case 'double': return 'double score';
+                        case 'shrink': return 'raccourcir';
+                        default: return type;
+                    }
+                }
+                
+                hasActivePowerup(type) {
+                    return this.activePowerups.some(powerup => powerup.type === type);
+                }
+                
+                generatePattern() {
+                    // Framework mode pattern generation logic
+                    // This would be implemented for the framework mode
+                }
+                
+                checkAchievements() {
+                    // First Code achievement
+                    if (!this.achievements.firstCode && this.itemsCollected >= 10) {
+                        this.achievements.firstCode = true;
+                        this.unlockAchievement('Premier Code');
+                    }
+                    
+                    // Debugger achievement
+                    if (!this.achievements.debugger && this.mode === 'debug' && this.elapsedTime >= 30000) {
+                        this.achievements.debugger = true;
+                        this.unlockAchievement('Débogueur');
+                    }
+                    
+                    // Agile Sprint achievement
+                    if (!this.achievements.agileSprint && this.baseSpeed <= 80) {
+                        this.achievements.agileSprint = true;
+                        this.unlockAchievement('Sprint Agile');
+                    }
+                }
+                
+                unlockAchievement(name) {
+                    const achievementsList = document.getElementById('achievements-list');
+                    const achievements = achievementsList.querySelectorAll('li');
+                    
+                    // Find and highlight the achievement
+                    achievements.forEach(achievement => {
+                        if (achievement.querySelector('h3').textContent === name) {
+                            achievement.classList.remove('opacity-50');
+                            achievement.classList.add('pulse');
+                            
+                            // Update achievement icon
+                            const icon = achievement.querySelector('span');
+                            icon.classList.remove('bg-gray-700');
+                            icon.classList.add('bg-primary', 'bg-opacity-20');
+                            
+                            // Remove pulse animation after 3 seconds
+                            setTimeout(() => {
+                                achievement.classList.remove('pulse');
+                            }, 3000);
+                        }
+                    });
+                }
+                
+                draw() {
+                    // Clear canvas
+                    this.ctx.fillStyle = '#1e293b';
+                    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                    
+                    // Draw grid lines
+                    this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+                    this.ctx.lineWidth = 1;
+                    
+                    for (let i = 0; i <= this.gridSize; i++) {
+                        // Vertical lines
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(i * this.cellSize, 0);
+                        this.ctx.lineTo(i * this.cellSize, this.canvas.height);
+                        this.ctx.stroke();
+                        
+                        // Horizontal lines
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(0, i * this.cellSize);
+                        this.ctx.lineTo(this.canvas.width, i * this.cellSize);
+                        this.ctx.stroke();
+                    }
+                    
+                    // Draw food
+                    if (this.food) {
+                        this.ctx.fillStyle = this.food.color;
+                        this.ctx.beginPath();
+                        this.ctx.roundRect(
+                            this.food.x * this.cellSize + 2,
+                            this.food.y * this.cellSize + 2,
+                            this.cellSize - 4,
+                            this.cellSize - 4,
+                            4
+                        );
+                        this.ctx.fill();
+                        
+                        // Draw food icon/text
+                        this.ctx.fillStyle = '#ffffff';
+                        this.ctx.font = 'bold 10px monospace';
+                        this.ctx.textAlign = 'center';
+                        this.ctx.textBaseline = 'middle';
+                        this.ctx.fillText(
+                            this.food.type.toUpperCase(),
+                            this.food.x * this.cellSize + this.cellSize / 2,
+                            this.food.y * this.cellSize + this.cellSize / 2
+                        );
+                    }
+                    
+                    // Draw obstacles
+                    for (let obstacle of this.obstacles) {
+                        this.ctx.fillStyle = obstacle.color;
+                        this.ctx.beginPath();
+                        this.ctx.roundRect(
+                            obstacle.x * this.cellSize + 2,
+                            obstacle.y * this.cellSize + 2,
+                            this.cellSize - 4,
+                            this.cellSize - 4,
+                            4
+                        );
+                        this.ctx.fill();
+                        
+                        // Draw bug symbol
+                        this.ctx.fillStyle = '#ffffff';
+                        this.ctx.font = 'bold 14px monospace';
+                        this.ctx.textAlign = 'center';
+                        this.ctx.textBaseline = 'middle';
+                        this.ctx.fillText(
+                            '!',
+                            obstacle.x * this.cellSize + this.cellSize / 2,
+                            obstacle.y * this.cellSize + this.cellSize / 2
+                        );
+                    }
+                    
+                    // Draw powerups
+                    for (let powerup of this.powerups) {
+                        this.ctx.fillStyle = powerup.color;
+                        this.ctx.beginPath();
+                        this.ctx.arc(
+                            powerup.x * this.cellSize + this.cellSize / 2,
+                            powerup.y * this.cellSize + this.cellSize / 2,
+                            this.cellSize / 2 - 2,
+                            0,
+                            Math.PI * 2
+                        );
+                        this.ctx.fill();
+                        
+                        // Draw powerup symbol
+                        this.ctx.fillStyle = '#ffffff';
+                        this.ctx.font = 'bold 12px monospace';
+                        this.ctx.textAlign = 'center';
+                        this.ctx.textBaseline = 'middle';
+                        let symbol = '?';
+                        
+                        switch (powerup.type) {
+                            case 'slow': symbol = '⏱️'; break;
+                            case 'shield': symbol = '🛡️'; break;
+                            case 'double': symbol = '×2'; break;
+                            case 'shrink': symbol = '✂️'; break;
+                        }
+                        
+                        this.ctx.fillText(
+                            symbol,
+                            powerup.x * this.cellSize + this.cellSize / 2,
+                            powerup.y * this.cellSize + this.cellSize / 2
+                        );
+                    }
+                    
+                    // Draw snake
+                    for (let i = 0; i < this.snake.length; i++) {
+                        const segment = this.snake[i];
+                        
+                        // Different color for head
+                        if (i === 0) {
+                            this.ctx.fillStyle = '#6366f1'; // Primary color for head
+                        } else {
+                            // Gradient from primary to secondary for body
+                            const colorPos = i / this.snake.length;
+                            const r = Math.round(99 + (139 - 99) * colorPos);
+                            const g = Math.round(102 + (92 - 102) * colorPos);
+                            const b = Math.round(241 + (246 - 241) * colorPos);
+                            this.ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+                        }
+                        
+                        // Draw segment with rounded corners
+                        this.ctx.beginPath();
+                        
+                        if (i === 0) {
+                            // Head is a rounded rectangle
+                            this.ctx.roundRect(
+                                segment.x * this.cellSize + 1,
+                                segment.y * this.cellSize + 1,
+                                this.cellSize - 2,
+                                this.cellSize - 2,
+                                6
+                            );
+                        } else {
+                            // Body segments
+                            this.ctx.roundRect(
+                                segment.x * this.cellSize + 2,
+                                segment.y * this.cellSize + 2,
+                                this.cellSize - 4,
+                                this.cellSize - 4,
+                                4
+                            );
+                        }
+                        
+                        this.ctx.fill();
+                        
+                        // Add shield effect if active
+                        if (i === 0 && this.hasActivePowerup('shield')) {
+                            this.ctx.strokeStyle = '#1dd1a1';
+                            this.ctx.lineWidth = 2;
+                            this.ctx.beginPath();
+                            this.ctx.arc(
+                                segment.x * this.cellSize + this.cellSize / 2,
+                                segment.y * this.cellSize + this.cellSize / 2,
+                                this.cellSize / 2 + 2,
+                                0,
+                                Math.PI * 2
+                            );
+                            this.ctx.stroke();
+                        }
+                        
+                        // Add code symbols to body segments
+                        if (i > 0 && i < 5) {
+                            this.ctx.fillStyle = '#ffffff';
+                            this.ctx.font = 'bold 10px monospace';
+                            this.ctx.textAlign = 'center';
+                            this.ctx.textBaseline = 'middle';
+                            
+                            let symbol = '';
+                            switch (i % 5) {
+                                case 1: symbol = '{'; break;
+                                case 2: symbol = '}'; break;
+                                case 3: symbol = '<'; break;
+                                case 4: symbol = '>'; break;
+                            }
+                            
+                            this.ctx.fillText(
+                                symbol,
+                                segment.x * this.cellSize + this.cellSize / 2,
+                                segment.y * this.cellSize + this.cellSize / 2
+                            );
+                        }
+                    }
+                }
+                
+                pause() {
+                    this.paused = true;
+                }
+                
+                resume() {
+                    this.paused = false;
+                }
+                
+                setMode(mode) {
+                    this.mode = mode;
+                }
+                
+                endGame() {
+                    this.gameOver = true;
+                    clearInterval(this.gameLoop);
+                    
+                    // Update best score
+                    const bestScore = parseInt(document.getElementById('best-score').textContent);
+                    if (this.score > bestScore) {
+                        document.getElementById('best-score').textContent = this.score;
+                    }
+                    
+                    // Show game over modal
+                    const gameOverModal = document.getElementById('game-over-modal');
+                    document.getElementById('final-score').textContent = this.score;
+                    document.getElementById('items-collected').textContent = this.itemsCollected;
+                    
+                    // Format time
+                    const seconds = Math.floor(this.elapsedTime / 1000);
+                    const minutes = Math.floor(seconds / 60);
+                    const remainingSeconds = seconds % 60;
+                    document.getElementById('play-time').textContent = 
+                        `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+                    
+                    gameOverModal.classList.remove('hidden');
+                }
+            }
+            
+            // Initialize game
+            const game = new SnakeGame(canvas, ctx);
+            
+            function startGame() {
+                game.init();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CodeJump - Le Jeu du Développeur</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: { primary: "#00ff00", secondary: "#6b47ff" },
+            borderRadius: {
+              none: "0px",
+              sm: "4px",
+              DEFAULT: "8px",
+              md: "12px",
+              lg: "16px",
+              xl: "20px",
+              "2xl": "24px",
+              "3xl": "32px",
+              full: "9999px",
+              button: "8px",
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
+    />
+    <style>
+      :where([class^="ri-"])::before { content: "\f3c2"; }
+      @font-face {
+      font-family: 'PixelFont';
+      src: url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+      }
+      body {
+      font-family: 'Press Start 2P', cursive;
+      background-color: #1a1a2e;
+      overflow: hidden;
+      }
+      .pixel-border {
+      box-shadow:
+      0 0 0 2px #000,
+      inset 0 0 0 1px #000;
+      }
+      .platform {
+      position: absolute;
+      width: 80px;
+      height: 15px;
+      background-color: #00ff00;
+      border: 2px solid #000;
+      }
+      .player {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      background-color: #ff6b6b;
+      border: 2px solid #000;
+      }
+      .bug {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      background-color: #ff0000;
+      border: 2px solid #000;
+      }
+      .powerup {
+      position: absolute;
+      width: 25px;
+      height: 25px;
+      background-color: #6b47ff;
+      border: 2px solid #000;
+      border-radius: 50%;
+      }
+      .pixel-btn {
+      background-color: #00ff00;
+      color: #000;
+      border: 3px solid #000;
+      padding: 10px 20px;
+      font-family: 'Press Start 2P', cursive;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.1s;
+      }
+      .pixel-btn:hover {
+      transform: scale(1.05);
+      background-color: #6b47ff;
+      color: #fff;
+      }
+      .pixel-btn:active {
+      transform: scale(0.95);
+      }
+      #game-canvas {
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%231a1a2e"/><path d="M10 10h80v80H10z" fill="none" stroke="%23333355" stroke-width="1"/><path d="M30 10v80M50 10v80M70 10v80M10 30h80M10 50h80M10 70h80" stroke="%23333355" stroke-width="0.5"/></svg>');
+      border: 4px solid #000;
+      }
+      .circuit-bg {
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%231a1a2e"/><path d="M10 10h80v80H10z" fill="none" stroke="%23333355" stroke-width="1"/><path d="M30 10v80M50 10v80M70 10v80M10 30h80M10 50h80M10 70h80" stroke="%23333355" stroke-width="0.5"/></svg>');
+      }
+      .pixel-text {
+      font-family: 'Press Start 2P', cursive;
+      color: #00ff00;
+      text-shadow: 2px 2px 0 #000;
+      }
+      input[type="range"] {
+      -webkit-appearance: none;
+      height: 15px;
+      background: #1a1a2e;
+      border: 2px solid #000;
+      outline: none;
+      }
+      input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      background: #00ff00;
+      border: 2px solid #000;
+      cursor: pointer;
+      }
+      .switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 30px;
+      }
+      .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      }
+      .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #1a1a2e;
+      border: 2px solid #000;
+      transition: .4s;
+      }
+      .slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 4px;
+      bottom: 3px;
+      background-color: #00ff00;
+      border: 2px solid #000;
+      transition: .4s;
+      }
+      input:checked + .slider {
+      background-color: #6b47ff;
+      }
+      input:checked + .slider:before {
+      transform: translateX(26px);
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="game-container"
+      class="w-full h-screen flex flex-col items-center justify-center bg-[#1a1a2e] p-4"
+    >
+      <!-- Menu Principal -->
+      <div
+        id="main-menu"
+        class="flex flex-col items-center justify-center w-full max-w-xl relative"
+      >
+        <div class="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
+          <img
+            src="https://readdy.ai/api/search-image?query=modern%20abstract%20technology%20background%20with%20glowing%20circuit%20patterns%20and%20digital%20grid%20lines%2C%20soft%20neon%20lights%2C%20futuristic%20tech%20aesthetic%2C%20clean%20minimalist%20design%2C%20subtle%20gradient%20overlay%2C%20perfect%20for%20game%20interface&width=1200&height=800&seq=2&orientation=landscape"
+            alt="Background"
+            class="w-full h-full object-cover opacity-20"
+          />
+        </div>
+        <h1 class="text-6xl font-bold mb-12 text-center pixel-text relative">
+          <span
+            class="text-[#00ff00] inline-block transform hover:scale-105 transition-transform"
+            >Code</span
+          >
+          <span
+            class="text-[#ff6b6b] inline-block transform hover:scale-105 transition-transform"
+            >Jump</span
+          >
+        </h1>
+        <div class="w-full max-w-md relative">
+          <div
+            class="absolute -top-20 left-1/2 transform -translate-x-1/2 w-48 h-48"
+          >
+            <div class="relative w-full h-full">
+              <div
+                class="absolute inset-0 bg-[#00ff00] opacity-10 rounded-full animate-pulse"
+              ></div>
+            </div>
+          </div>
+          <div
+            class="backdrop-blur-sm bg-white/5 rounded-2xl p-8 mt-16 border border-white/10"
+          >
+            <div class="mb-6 p-4 bg-black/20 rounded-xl">
+              <h3 class="text-[#00ff00] text-lg mb-4 font-bold text-center">
+                BONUS DISPONIBLES
+              </h3>
+              <div class="grid grid-cols-2 gap-4">
+                <div class="flex items-center p-2 bg-black/30 rounded-lg">
+                  <div
+                    class="w-8 h-8 flex items-center justify-center bg-[#00ff88] rounded-full mr-3"
+                  >
+                    ✨
+                  </div>
+                  <div>
+                    <p class="text-[#00ff88] text-sm font-bold">Énergie</p>
+                    <p class="text-[#d3d3d3] text-xs">+30% énergie</p>
+                  </div>
+                </div>
+                <div class="flex items-center p-2 bg-black/30 rounded-lg">
+                  <div
+                    class="w-8 h-8 flex items-center justify-center bg-[#ffd700] rounded-full mr-3"
+                  >
+                    ⭐
+                  </div>
+                  <div>
+                    <p class="text-[#ffd700] text-sm font-bold">Score</p>
+                    <p class="text-[#d3d3d3] text-xs">+100 points</p>
+                  </div>
+                </div>
+                <div class="flex items-center p-2 bg-black/30 rounded-lg">
+                  <div
+                    class="w-8 h-8 flex items-center justify-center bg-[#9d6fff] rounded-full mr-3"
+                  >
+                    ⚡
+                  </div>
+                  <div>
+                    <p class="text-[#9d6fff] text-sm font-bold">Super Saut</p>
+                    <p class="text-[#d3d3d3] text-xs">Saut puissant</p>
+                  </div>
+                </div>
+                <div class="flex items-center p-2 bg-black/30 rounded-lg">
+                  <div
+                    class="w-8 h-8 flex items-center justify-center bg-[#ff4d4d] rounded-full mr-3"
+                  >
+                    🛡️
+                  </div>
+                  <div>
+                    <p class="text-[#ff4d4d] text-sm font-bold">Bouclier</p>
+                    <p class="text-[#d3d3d3] text-xs">Protection</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="flex flex-col items-center space-y-4">
+              <button
+                id="play-btn"
+                class="pixel-btn w-full py-4 text-lg font-bold transform hover:scale-105 transition-all !rounded-button bg-gradient-to-r from-[#00ff00] to-[#00cc00]"
+              >
+                JOUER
+              </button>
+              <button
+                id="highscores-btn"
+                class="pixel-btn w-full py-4 text-lg font-bold transform hover:scale-105 transition-all !rounded-button bg-gradient-to-r from-[#6b47ff] to-[#5236cc]"
+              >
+                SCORES
+              </button>
+              <button
+                id="settings-btn"
+                class="pixel-btn w-full py-4 text-lg font-bold transform hover:scale-105 transition-all !rounded-button bg-gradient-to-r from-[#ff6b6b] to-[#cc5656]"
+              >
+                PARAMÈTRES
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="text-[#d3d3d3] text-xs text-center mt-8">
+          <p>© 2025 CodeJump - Tous droits réservés</p>
+          <p>v1.0.0 - Mise à jour: 21/05/2025</p>
+        </div>
+      </div>
+      <!-- Écran de jeu -->
+      <div id="game-screen" class="hidden w-full max-w-lg">
+        <div class="flex justify-between items-center mb-2">
+          <div class="flex items-center">
+            <div class="text-[#00ff00] mr-2 pixel-text text-sm">ÉNERGIE:</div>
+            <div class="w-32 h-4 bg-[#1a1a2e] border-2 border-black">
+              <div
+                id="energy-bar"
+                class="h-full bg-[#00ff00]"
+                style="width: 100%;"
+              ></div>
+            </div>
+          </div>
+          <div class="flex items-center">
+            <div class="text-[#00ff00] mr-2 pixel-text text-sm">SCORE:</div>
+            <div id="score" class="text-[#00ff00] pixel-text text-sm">0</div>
+          </div>
+          <button
+            id="pause-btn"
+            class="w-8 h-8 flex items-center justify-center bg-[#1a1a2e] border-2 border-black"
+          >
+            <i class="ri-pause-mini-fill text-[#00ff00]"></i>
+          </button>
+        </div>
+        <canvas
+          id="game-canvas"
+          width="400"
+          height="600"
+          class="w-full h-[600px]"
+        ></canvas>
+        <div class="flex justify-between mt-4">
+          <div id="mobile-controls" class="flex justify-between w-full">
+            <button id="left-btn" class="pixel-btn !rounded-button">
+              <i class="ri-arrow-left-s-line"></i>
+            </button>
+            <button id="right-btn" class="pixel-btn !rounded-button">
+              <i class="ri-arrow-right-s-line"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- Écran Game Over -->
+      <div
+        id="game-over"
+        class="hidden flex flex-col items-center justify-center w-full max-w-lg"
+      >
+        <div class="pixel-border p-8 bg-[#1a1a2e] mb-8 w-full">
+          <div class="circuit-bg p-4">
+            <div class="text-center mb-6">
+              <h2 class="text-2xl font-bold mb-2 pixel-text">GAME OVER</h2>
+              <div class="mb-4 text-[#d3d3d3]">
+                <p class="mb-2">SCORE FINAL:</p>
+                <p id="final-score" class="text-2xl text-[#00ff00]">0</p>
+              </div>
+              <div class="mb-6">
+                <p class="text-[#ff6b6b] text-sm">Erreur fatale détectée!</p>
+                <p class="text-[#d3d3d3] text-xs mt-2">
+                  Exception: DeveloperOutOfBoundsException
+                </p>
+              </div>
+            </div>
+            <button
+              id="restart-btn"
+              class="pixel-btn w-full mb-4 !rounded-button"
+            >
+              RECOMMENCER
+            </button>
+            <button id="menu-btn" class="pixel-btn w-full !rounded-button">
+              MENU PRINCIPAL
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- Écran des scores -->
+      <div
+        id="highscores-screen"
+        class="hidden flex flex-col items-center justify-center w-full max-w-lg"
+      >
+        <div class="pixel-border p-8 bg-[#1a1a2e] mb-8 w-full">
+          <div class="circuit-bg p-4">
+            <h2 class="text-2xl font-bold mb-6 text-center pixel-text">
+              MEILLEURS SCORES
+            </h2>
+            <div class="mb-6">
+              <div
+                class="flex justify-between mb-2 border-b-2 border-[#333355] pb-2"
+              >
+                <span class="text-[#d3d3d3]">RANG</span>
+                <span class="text-[#d3d3d3]">NOM</span>
+                <span class="text-[#d3d3d3]">SCORE</span>
+              </div>
+              <div class="flex justify-between mb-2">
+                <span class="text-[#00ff00]">1</span>
+                <span class="text-[#00ff00]">MARTIN</span>
+                <span class="text-[#00ff00]">9845</span>
+              </div>
+              <div class="flex justify-between mb-2">
+                <span class="text-[#6b47ff]">2</span>
+                <span class="text-[#6b47ff]">SOPHIE</span>
+                <span class="text-[#6b47ff]">8721</span>
+              </div>
+              <div class="flex justify-between mb-2">
+                <span class="text-[#ff6b6b]">3</span>
+                <span class="text-[#ff6b6b]">THOMAS</span>
+                <span class="text-[#ff6b6b]">7654</span>
+              </div>
+              <div class="flex justify-between mb-2">
+                <span class="text-[#d3d3d3]">4</span>
+                <span class="text-[#d3d3d3]">ÉMILIE</span>
+                <span class="text-[#d3d3d3]">6543</span>
+              </div>
+              <div class="flex justify-between mb-2">
+                <span class="text-[#d3d3d3]">5</span>
+                <span class="text-[#d3d3d3]">LUCAS</span>
+                <span class="text-[#d3d3d3]">5421</span>
+              </div>
+            </div>
+            <button
+              id="back-from-scores-btn"
+              class="pixel-btn w-full !rounded-button"
+            >
+              RETOUR
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- Écran des paramètres -->
+      <div
+        id="settings-screen"
+        class="hidden flex flex-col items-center justify-center w-full max-w-lg"
+      >
+        <div class="pixel-border p-8 bg-[#1a1a2e] mb-8 w-full">
+          <div class="circuit-bg p-4">
+            <h2 class="text-2xl font-bold mb-6 text-center pixel-text">
+              PARAMÈTRES
+            </h2>
+            <div class="mb-6">
+              <div class="flex justify-between items-center mb-4">
+                <span class="text-[#d3d3d3]">MUSIQUE</span>
+                <div class="flex items-center">
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value="70"
+                    class="w-32 mr-2"
+                  />
+                  <span class="text-[#00ff00]">70%</span>
+                </div>
+              </div>
+              <div class="flex justify-between items-center mb-4">
+                <span class="text-[#d3d3d3]">EFFETS SONORES</span>
+                <div class="flex items-center">
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value="85"
+                    class="w-32 mr-2"
+                  />
+                  <span class="text-[#00ff00]">85%</span>
+                </div>
+              </div>
+              <div class="flex justify-between items-center mb-4">
+                <span class="text-[#d3d3d3]">VIBRATION</span>
+                <label class="switch">
+                  <input type="checkbox" checked />
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <div class="flex justify-between items-center mb-4">
+                <span class="text-[#d3d3d3]">MODE PIXEL PARFAIT</span>
+                <label class="switch">
+                  <input type="checkbox" />
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+            <button
+              id="back-from-settings-btn"
+              class="pixel-btn w-full !rounded-button"
+            >
+              SAUVEGARDER
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- Écran de pause -->
+      <div
+        id="pause-screen"
+        class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50"
+      >
+        <div class="pixel-border p-8 bg-[#1a1a2e] w-full max-w-sm">
+          <div class="circuit-bg p-4">
+            <h2 class="text-2xl font-bold mb-6 text-center pixel-text">
+              PAUSE
+            </h2>
+            <button
+              id="resume-btn"
+              class="pixel-btn w-full mb-4 !rounded-button"
+            >
+              REPRENDRE
+            </button>
+            <button
+              id="restart-from-pause-btn"
+              class="pixel-btn w-full mb-4 !rounded-button"
+            >
+              RECOMMENCER
+            </button>
+            <button
+              id="menu-from-pause-btn"
+              class="pixel-btn w-full !rounded-button"
+            >
+              MENU PRINCIPAL
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Éléments DOM
+        const mainMenu = document.getElementById("main-menu");
+        const gameScreen = document.getElementById("game-screen");
+        const gameOver = document.getElementById("game-over");
+        const highscoresScreen = document.getElementById("highscores-screen");
+        const settingsScreen = document.getElementById("settings-screen");
+        const pauseScreen = document.getElementById("pause-screen");
+        const playBtn = document.getElementById("play-btn");
+        const highscoresBtn = document.getElementById("highscores-btn");
+        const settingsBtn = document.getElementById("settings-btn");
+        const pauseBtn = document.getElementById("pause-btn");
+        const resumeBtn = document.getElementById("resume-btn");
+        const restartBtn = document.getElementById("restart-btn");
+        const restartFromPauseBtn = document.getElementById("restart-from-pause-btn");
+        const menuBtn = document.getElementById("menu-btn");
+        const menuFromPauseBtn = document.getElementById("menu-from-pause-btn");
+        const backFromScoresBtn = document.getElementById("back-from-scores-btn");
+        const backFromSettingsBtn = document.getElementById("back-from-settings-btn");
+        const leftBtn = document.getElementById("left-btn");
+        const rightBtn = document.getElementById("right-btn");
+        const scoreDisplay = document.getElementById("score");
+        const finalScoreDisplay = document.getElementById("final-score");
+        const energyBar = document.getElementById("energy-bar");
+        const canvas = document.getElementById("game-canvas");
+        const ctx = canvas.getContext("2d");
+        // Variables du jeu
+        let gameRunning = false;
+        let gamePaused = false;
+        let score = 0;
+        let energy = 100;
+        let playerX = canvas.width / 2;
+        let playerY = canvas.height / 2;
+        let playerVelocityY = 0;
+        let playerVelocityX = 0;
+        let gravity = 0.25;
+        let platforms = [];
+        let bugs = [];
+        let powerups = [];
+        let keys = {};
+        let gameLoop;
+        // Images pour les plateformes
+        const platformImages = [
+          { name: "JavaScript", color: "#f7df1e" },
+          { name: "Python", color: "#3776ab" },
+          { name: "Java", color: "#5382a1" },
+          { name: "C++", color: "#00599c" },
+          { name: "PHP", color: "#777bb4" },
+        ];
+        // Navigation entre les écrans
+        playBtn.addEventListener("click", startGame);
+        highscoresBtn.addEventListener("click", showHighscores);
+        settingsBtn.addEventListener("click", showSettings);
+        pauseBtn.addEventListener("click", pauseGame);
+        resumeBtn.addEventListener("click", resumeGame);
+        restartBtn.addEventListener("click", restartGame);
+        restartFromPauseBtn.addEventListener("click", restartGame);
+        menuBtn.addEventListener("click", showMainMenu);
+        menuFromPauseBtn.addEventListener("click", showMainMenu);
+        backFromScoresBtn.addEventListener("click", showMainMenu);
+        backFromSettingsBtn.addEventListener("click", showMainMenu);
+        // Contrôles
+        document.addEventListener("keydown", function (e) {
+          keys[e.code] = true;
+        });
+        document.addEventListener("keyup", function (e) {
+          keys[e.code] = false;
+        });
+        leftBtn.addEventListener("mousedown", function () {
+          keys["ArrowLeft"] = true;
+        });
+        leftBtn.addEventListener("mouseup", function () {
+          keys["ArrowLeft"] = false;
+        });
+        leftBtn.addEventListener("touchstart", function () {
+          keys["ArrowLeft"] = true;
+        });
+        leftBtn.addEventListener("touchend", function () {
+          keys["ArrowLeft"] = false;
+        });
+        rightBtn.addEventListener("mousedown", function () {
+          keys["ArrowRight"] = true;
+        });
+        rightBtn.addEventListener("mouseup", function () {
+          keys["ArrowRight"] = false;
+        });
+        rightBtn.addEventListener("touchstart", function () {
+          keys["ArrowRight"] = true;
+        });
+        rightBtn.addEventListener("touchend", function () {
+          keys["ArrowRight"] = false;
+        });
+        // Fonctions d'initialisation
+        function initGame() {
+          // Réinitialiser les variables
+          score = 0;
+          energy = 100;
+          playerX = canvas.width / 2;
+          playerY = canvas.height / 2;
+          playerVelocityY = 0;
+          playerVelocityX = 0;
+          platforms = [];
+          bugs = [];
+          powerups = [];
+          player = {
+            shield: false,
+          };
+          // Créer les plateformes initiales
+          for (let i = 0; i < 10; i++) {
+            createPlatform(
+              Math.random() * (canvas.width - 80),
+              canvas.height - i * 60 - 30,
+            );
+          }
+          // Mettre à jour l'affichage
+          scoreDisplay.textContent = score;
+          energyBar.style.width = energy + "%";
+          // Démarrer la boucle de jeu
+          if (gameLoop) clearInterval(gameLoop);
+          gameLoop = setInterval(update, 1000 / 60);
+        }
+        function createPlatform(x, y) {
+          const platformType =
+            platformImages[Math.floor(Math.random() * platformImages.length)];
+          platforms.push({
+            x: x,
+            y: y,
+            width: 80,
+            height: 15,
+            type: platformType,
+          });
+          // Ajouter un bug ou un powerup aléatoirement
+          if (Math.random() < 0.2) {
+            bugs.push({
+              x: x + Math.random() * 40,
+              y: y - 30,
+              width: 30,
+              height: 30,
+            });
+          } else if (Math.random() < 0.1) {
+            powerups.push({
+              x: x + Math.random() * 40,
+              y: y - 25,
+              width: 25,
+              height: 25,
+              type: Math.floor(Math.random() * 3), // 0: énergie, 1: score, 2: saut
+            });
+          }
+        }
+        // Boucle de jeu principale
+        function update() {
+          if (gamePaused) return;
+          // Effacer le canvas
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          // Déplacer le joueur
+          if (keys["ArrowLeft"] || keys["KeyA"]) {
+            playerVelocityX = -5;
+          } else if (keys["ArrowRight"] || keys["KeyD"]) {
+            playerVelocityX = 5;
+          } else {
+            playerVelocityX *= 0.8; // Friction
+          }
+          playerX += playerVelocityX;
+          playerVelocityY += gravity;
+          playerY += playerVelocityY;
+          // Limites de l'écran (wrap around horizontal)
+          if (playerX < 0) playerX = canvas.width;
+          if (playerX > canvas.width) playerX = 0;
+          // Vérifier la collision avec les plateformes
+          for (let i = 0; i < platforms.length; i++) {
+            const p = platforms[i];
+            if (
+              playerVelocityY > 0 &&
+              playerX + 20 > p.x &&
+              playerX - 20 < p.x + p.width &&
+              playerY + 20 > p.y &&
+              playerY + 20 < p.y + p.height
+            ) {
+              playerVelocityY = -10; // Rebondir
+              score += 10;
+              scoreDisplay.textContent = score;
+            }
+          }
+          // Vérifier la collision avec les bugs
+          for (let i = bugs.length - 1; i >= 0; i--) {
+            const bug = bugs[i];
+            if (
+              playerX + 20 > bug.x &&
+              playerX - 20 < bug.x + bug.width &&
+              playerY + 20 > bug.y &&
+              playerY - 20 < bug.y + bug.height
+            ) {
+              bugs.splice(i, 1);
+              energy -= 20;
+              energyBar.style.width = energy + "%";
+              if (energy <= 0) {
+                gameOver();
+              }
+            }
+          }
+          // Vérifier la collision avec les powerups
+          for (let i = powerups.length - 1; i >= 0; i--) {
+            const powerup = powerups[i];
+            if (
+              playerX + 20 > powerup.x &&
+              playerX - 20 < powerup.x + powerup.width &&
+              playerY + 20 > powerup.y &&
+              playerY - 20 < powerup.y + powerup.height
+            ) {
+              powerups.splice(i, 1);
+              switch (powerup.type) {
+                case 0: // Énergie
+                  energy = Math.min(100, energy + 30);
+                  energyBar.style.width = energy + "%";
+                  break;
+                case 1: // Score
+                  score += 100;
+                  scoreDisplay.textContent = score;
+                  break;
+                case 2: // Super saut
+                  playerVelocityY = -15;
+                  break;
+                case 3: // Bouclier
+                  if (!player.shield) {
+                    player.shield = true;
+                    setTimeout(() => {
+                      player.shield = false;
+                    }, 5000);
+                  }
+                  break;
+              }
+            }
+          }
+          // Déplacer l'écran vers le haut quand le joueur monte
+          if (playerY < canvas.height / 2) {
+            const offset = canvas.height / 2 - playerY;
+            playerY += offset;
+            // Déplacer les plateformes, bugs et powerups vers le bas
+            for (let i = 0; i < platforms.length; i++) {
+              platforms[i].y += offset;
+              // Supprimer les plateformes qui sortent de l'écran
+              if (platforms[i].y > canvas.height) {
+                platforms.splice(i, 1);
+                i--;
+                // Créer une nouvelle plateforme en haut
+                createPlatform(Math.random() * (canvas.width - 80), 0);
+              }
+            }
+            for (let i = 0; i < bugs.length; i++) {
+              bugs[i].y += offset;
+              if (bugs[i].y > canvas.height) {
+                bugs.splice(i, 1);
+                i--;
+              }
+            }
+            for (let i = 0; i < powerups.length; i++) {
+              powerups[i].y += offset;
+              if (powerups[i].y > canvas.height) {
+                powerups.splice(i, 1);
+                i--;
+              }
+            }
+          }
+          // Game over si le joueur tombe
+          if (playerY > canvas.height) {
+            endGame();
+          }
+          // Dessiner les plateformes
+          for (let i = 0; i < platforms.length; i++) {
+            const p = platforms[i];
+            // Créer un dégradé pour la plateforme
+            const gradient = ctx.createLinearGradient(p.x, p.y, p.x, p.y + p.height);
+            gradient.addColorStop(0, p.type.color);
+            gradient.addColorStop(1, adjustColor(p.type.color, -30));
+            // Dessiner l'ombre de la plateforme
+            ctx.shadowColor = "rgba(0, 0, 0, 0.3)";
+            ctx.shadowBlur = 10;
+            ctx.shadowOffsetY = 5;
+            // Dessiner la plateforme avec des coins arrondis
+            ctx.beginPath();
+            ctx.roundRect(p.x, p.y, p.width, p.height, 8);
+            ctx.fillStyle = gradient;
+            ctx.fill();
+            // Réinitialiser l'ombre
+            ctx.shadowColor = "transparent";
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetY = 0;
+            // Ajouter un effet de brillance
+            const highlightGradient = ctx.createLinearGradient(
+              p.x,
+              p.y,
+              p.x,
+              p.y + 5,
+            );
+            highlightGradient.addColorStop(0, "rgba(255, 255, 255, 0.4)");
+            highlightGradient.addColorStop(1, "rgba(255, 255, 255, 0)");
+            ctx.fillStyle = highlightGradient;
+            ctx.beginPath();
+            ctx.roundRect(p.x, p.y, p.width, 5, [8, 8, 0, 0]);
+            ctx.fill();
+            // Dessiner le nom du langage
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "bold 10px Arial";
+            ctx.textAlign = "center";
+            ctx.fillText(p.type.name, p.x + p.width / 2, p.y + p.height / 1.5);
+          }
+          // Dessiner les bugs
+          for (let i = 0; i < bugs.length; i++) {
+            const bug = bugs[i];
+            // Effet de lueur rouge
+            ctx.shadowColor = "rgba(255, 0, 0, 0.5)";
+            ctx.shadowBlur = 15;
+            // Corps du bug
+            ctx.beginPath();
+            ctx.roundRect(bug.x, bug.y, bug.width, bug.height, 8);
+            const bugGradient = ctx.createLinearGradient(
+              bug.x,
+              bug.y,
+              bug.x,
+              bug.y + bug.height,
+            );
+            bugGradient.addColorStop(0, "#ff3333");
+            bugGradient.addColorStop(1, "#cc0000");
+            ctx.fillStyle = bugGradient;
+            ctx.fill();
+            // Réinitialiser l'ombre
+            ctx.shadowColor = "transparent";
+            ctx.shadowBlur = 0;
+            // Symbole du bug stylisé
+            ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+            ctx.font = "bold 18px Arial";
+            ctx.textAlign = "center";
+            ctx.fillText("⚠️", bug.x + bug.width / 2, bug.y + bug.height / 1.5);
+          }
+          // Dessiner les powerups
+          for (let i = 0; i < powerups.length; i++) {
+            const powerup = powerups[i];
+            // Définir les couleurs et effets selon le type
+            let mainColor, glowColor, symbol;
+            if (powerup.type === 0) {
+              mainColor = "#00ff88";
+              glowColor = "rgba(0, 255, 136, 0.5)";
+              symbol = "✨";
+            } else if (powerup.type === 1) {
+              mainColor = "#ffd700";
+              glowColor = "rgba(255, 215, 0, 0.5)";
+              symbol = "⭐";
+            } else if (powerup.type === 2) {
+              mainColor = "#9d6fff";
+              glowColor = "rgba(157, 111, 255, 0.5)";
+              symbol = "⚡";
+            } else if (powerup.type === 3) {
+              mainColor = "#ff4d4d";
+              glowColor = "rgba(255, 77, 77, 0.5)";
+              symbol = "🛡️";
+            }
+            // Effet de lueur
+            ctx.shadowColor = glowColor;
+            ctx.shadowBlur = 15;
+            // Cercle principal avec dégradé
+            ctx.beginPath();
+            const powerupGradient = ctx.createRadialGradient(
+              powerup.x + powerup.width / 2,
+              powerup.y + powerup.height / 2,
+              0,
+              powerup.x + powerup.width / 2,
+              powerup.y + powerup.height / 2,
+              powerup.width / 2,
+            );
+            powerupGradient.addColorStop(0, mainColor);
+            powerupGradient.addColorStop(1, adjustColor(mainColor, -30));
+            ctx.fillStyle = powerupGradient;
+            ctx.arc(
+              powerup.x + powerup.width / 2,
+              powerup.y + powerup.height / 2,
+              powerup.width / 2,
+              0,
+              Math.PI * 2,
+            );
+            ctx.fill();
+            // Réinitialiser l'ombre
+            ctx.shadowColor = "transparent";
+            ctx.shadowBlur = 0;
+            // Symbole du powerup
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "bold 15px Arial";
+            ctx.textAlign = "center";
+            ctx.fillText(
+              symbol,
+              powerup.x + powerup.width / 2,
+              powerup.y + powerup.height / 1.6,
+            );
+          }
+          // Fonction utilitaire pour ajuster la couleur
+          function adjustColor(color, amount) {
+            const hex = color.replace("#", "");
+            const r = Math.max(
+              0,
+              Math.min(255, parseInt(hex.substring(0, 2), 16) + amount),
+            );
+            const g = Math.max(
+              0,
+              Math.min(255, parseInt(hex.substring(2, 4), 16) + amount),
+            );
+            const b = Math.max(
+              0,
+              Math.min(255, parseInt(hex.substring(4, 6), 16) + amount),
+            );
+            return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
+          }
+          // Dessiner le joueur
+          if (player.shield) {
+            ctx.beginPath();
+            ctx.arc(playerX, playerY, 30, 0, Math.PI * 2);
+            ctx.fillStyle = "rgba(255, 77, 77, 0.2)";
+            ctx.fill();
+            ctx.strokeStyle = "#ff4d4d";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+          }
+          ctx.fillStyle = "#ff6b6b";
+          ctx.fillRect(playerX - 20, playerY - 20, 40, 40);
+          ctx.strokeStyle = "#000";
+          ctx.lineWidth = 2;
+          ctx.strokeRect(playerX - 20, playerY - 20, 40, 40);
+          // Dessiner le visage du développeur
+          ctx.fillStyle = "#000";
+          ctx.fillRect(playerX - 10, playerY - 10, 5, 5); // Œil gauche
+          ctx.fillRect(playerX + 5, playerY - 10, 5, 5); // Œil droit
+          if (playerVelocityY < 0) {
+            // Sourire quand il monte
+            ctx.beginPath();
+            ctx.arc(playerX, playerY + 5, 8, 0, Math.PI);
+            ctx.stroke();
+          } else {
+            // Bouche neutre quand il descend
+            ctx.fillRect(playerX - 8, playerY + 5, 16, 2);
+          }
+        }
+        // Fonctions de gestion du jeu
+        function startGame() {
+          hideAllScreens();
+          gameScreen.classList.remove("hidden");
+          gameRunning = true;
+          gamePaused = false;
+          initGame();
+        }
+        function pauseGame() {
+          if (!gameRunning) return;
+          gamePaused = true;
+          pauseScreen.classList.remove("hidden");
+        }
+        function resumeGame() {
+          pauseScreen.classList.add("hidden");
+          gamePaused = false;
+        }
+        function endGame() {
+          gameRunning = false;
+          clearInterval(gameLoop);
+          finalScoreDisplay.textContent = score;
+          hideAllScreens();
+          gameOver.classList.remove("hidden");
+        }
+        function restartGame() {
+          hideAllScreens();
+          gameScreen.classList.remove("hidden");
+          gameRunning = true;
+          gamePaused = false;
+          initGame();
+        }
+        function showMainMenu() {
+          gameRunning = false;
+          if (gameLoop) clearInterval(gameLoop);
+          hideAllScreens();
+          mainMenu.classList.remove("hidden");
+        }
+        function showHighscores() {
+          hideAllScreens();
+          highscoresScreen.classList.remove("hidden");
+        }
+        function showSettings() {
+          hideAllScreens();
+          settingsScreen.classList.remove("hidden");
+        }
+        function hideAllScreens() {
+          mainMenu.classList.add("hidden");
+          gameScreen.classList.add("hidden");
+          gameOver.classList.add("hidden");
+          highscoresScreen.classList.add("hidden");
+          settingsScreen.classList.add("hidden");
+          pauseScreen.classList.add("hidden");
+        }
+      });
+    </script>
+  </body>
+</html>

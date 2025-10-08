@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>2048 Dev Edition</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: { primary: "#3b82f6", secondary: "#10b981" },
+            borderRadius: {
+              none: "0px",
+              sm: "4px",
+              DEFAULT: "8px",
+              md: "12px",
+              lg: "16px",
+              xl: "20px",
+              "2xl": "24px",
+              "3xl": "32px",
+              full: "9999px",
+              button: "8px",
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
+    />
+    <style>
+      :where([class^="ri-"])::before { content: "\f3c2"; }
+
+      body {
+          font-family: 'Poppins', sans-serif;
+          transition: background-color 0.3s, color 0.3s;
+      }
+
+      .dark {
+          background-color: #1f2937;
+          color: #f3f4f6;
+      }
+
+      .grid-container {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          grid-template-rows: repeat(4, 1fr);
+          gap: 10px;
+          width: 100%;
+          height: 100%;
+          max-width: 500px;
+          max-height: 500px;
+          margin: 0 auto;
+      }
+
+      .tile {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 8px;
+          font-weight: bold;
+          font-size: 1.5rem;
+          transition: transform 0.1s, background-color 0.1s;
+          user-select: none;
+          position: relative;
+          overflow: hidden;
+      }
+
+      .tile-2 {
+          background-color: #f1f5f9;
+          color: #334155;
+      }
+
+      .tile-4 {
+          background-color: #dbeafe;
+          color: #1e40af;
+      }
+
+      .tile-8 {
+          background-color: #fef3c7;
+          color: #92400e;
+      }
+
+      .tile-16 {
+          background-color: #dcfce7;
+          color: #166534;
+      }
+
+      .tile-32 {
+          background-color: #ffedd5;
+          color: #9a3412;
+      }
+
+      .tile-64 {
+          background-color: #dbeafe;
+          color: #1e40af;
+      }
+
+      .tile-128 {
+          background-color: #fee2e2;
+          color: #991b1b;
+          font-size: 1.2rem;
+      }
+
+      .tile-256 {
+          background-color: #e0e7ff;
+          color: #3730a3;
+          font-size: 1.2rem;
+      }
+
+      .tile-512 {
+          background-color: #fce7f3;
+          color: #9d174d;
+          font-size: 1.2rem;
+      }
+
+      .tile-1024 {
+          background-color: #d1fae5;
+          color: #065f46;
+          font-size: 1rem;
+      }
+
+      .tile-2048 {
+          background-color: #6366f1;
+          color: white;
+          font-size: 1rem;
+      }
+
+      .tile-new {
+          animation: appear 0.2s;
+      }
+
+      .tile-merged {
+          animation: pop 0.2s;
+      }
+
+      @keyframes appear {
+          0% { transform: scale(0); }
+          100% { transform: scale(1); }
+      }
+
+      @keyframes pop {
+          0% { transform: scale(1); }
+          50% { transform: scale(1.1); }
+          100% { transform: scale(1); }
+      }
+
+      .tile-icon {
+          position: absolute;
+          opacity: 0.2;
+          font-size: 2.5rem;
+          z-index: 0;
+      }
+
+      .tile-label {
+          position: relative;
+          z-index: 1;
+      }
+
+      input[type="range"] {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 100%;
+          height: 8px;
+          background: #e5e7eb;
+          border-radius: 8px;
+          outline: none;
+      }
+
+      input[type="range"]::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 18px;
+          height: 18px;
+          background: #3b82f6;
+          border-radius: 50%;
+          cursor: pointer;
+      }
+
+      input[type="range"]::-moz-range-thumb {
+          width: 18px;
+          height: 18px;
+          background: #3b82f6;
+          border-radius: 50%;
+          cursor: pointer;
+          border: none;
+      }
+
+      .switch {
+          position: relative;
+          display: inline-block;
+          width: 48px;
+          height: 24px;
+      }
+
+      .switch input {
+          opacity: 0;
+          width: 0;
+          height: 0;
+      }
+
+      .slider {
+          position: absolute;
+          cursor: pointer;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: #e5e7eb;
+          transition: .4s;
+          border-radius: 24px;
+      }
+
+      .slider:before {
+          position: absolute;
+          content: "";
+          height: 18px;
+          width: 18px;
+          left: 3px;
+          bottom: 3px;
+          background-color: white;
+          transition: .4s;
+          border-radius: 50%;
+      }
+
+      input:checked + .slider {
+          background-color: #3b82f6;
+      }
+
+      input:checked + .slider:before {
+          transform: translateX(24px);
+      }
+
+      @media (max-width: 640px) {
+          .grid-container {
+              max-width: 340px;
+              max-height: 340px;
+          }
+
+          .tile {
+              font-size: 1.2rem;
+          }
+
+          .tile-128, .tile-256, .tile-512 {
+              font-size: 1rem;
+          }
+
+          .tile-1024, .tile-2048 {
+              font-size: 0.8rem;
+          }
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 min-h-screen flex flex-col">
+    <header class="w-full bg-white shadow-sm py-4 px-6">
+      <div
+        class="max-w-4xl mx-auto flex flex-col sm:flex-row justify-between items-center"
+      >
+        <h1 class="text-3xl font-['Pacifico'] text-primary mb-4 sm:mb-0">
+          2048 Dev Edition
+        </h1>
+        <div class="flex items-center space-x-4">
+          <button
+            id="theme-toggle"
+            class="flex items-center justify-center w-10 h-10 rounded-button bg-gray-100 hover:bg-gray-200 transition-colors"
+          >
+            <i class="ri-sun-line text-gray-700"></i>
+          </button>
+          <button
+            id="new-game"
+            class="px-4 py-2 bg-primary text-white rounded-button hover:bg-blue-600 transition-colors whitespace-nowrap"
+          >
+            Nouveau Jeu
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-1 py-8 px-6">
+      <div class="max-w-4xl mx-auto">
+        <section
+          class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6"
+        >
+          <div class="flex gap-4">
+            <article class="bg-white shadow-sm rounded p-4 text-center w-32">
+              <h2 class="text-sm text-gray-500 mb-1">Score</h2>
+              <p id="score" class="text-2xl font-bold">0</p>
+            </article>
+            <article class="bg-white shadow-sm rounded p-4 text-center w-32">
+              <h2 class="text-sm text-gray-500 mb-1">Meilleur</h2>
+              <p id="best-score" class="text-2xl font-bold">0</p>
+            </article>
+          </div>
+          <div class="flex flex-col gap-2 w-full sm:w-auto">
+            <div class="flex items-center justify-between gap-4">
+              <span class="text-sm text-gray-600">Son</span>
+              <label class="switch">
+                <input type="checkbox" id="sound-toggle" />
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="flex items-center justify-between gap-4">
+              <span class="text-sm text-gray-600">Volume</span>
+              <input
+                type="range"
+                id="volume-control"
+                min="0"
+                max="100"
+                value="50"
+                class="w-32"
+              />
+            </div>
+          </div>
+        </section>
+
+        <section
+          class="bg-white shadow-sm rounded-lg p-4 mb-8 aspect-square max-w-[500px] mx-auto"
+        >
+          <div class="grid-container" id="game-grid">
+            <!-- Les tuiles seront générées dynamiquement par JavaScript -->
+          </div>
+        </section>
+
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <article class="bg-white shadow-sm rounded-lg p-6">
+            <h2 class="text-xl font-semibold mb-4">Comment jouer</h2>
+            <p class="mb-3">
+              Utilisez les <strong>flèches directionnelles</strong> ou les
+              touches <strong>ZQSD</strong> pour déplacer les tuiles. Lorsque
+              deux tuiles avec la même technologie se touchent, elles fusionnent
+              en une technologie plus avancée!
+            </p>
+            <p>
+              Atteignez la tuile <strong>Full Stack</strong> (2048) pour gagner!
+            </p>
+
+            <h3 class="text-lg font-semibold mt-5 mb-2">Contrôles</h3>
+            <ul class="list-disc pl-5 space-y-1">
+              <li>Flèches directionnelles ou ZQSD pour déplacer</li>
+              <li>Sur mobile, faites glisser votre doigt pour déplacer</li>
+              <li>Appuyez sur "Nouveau Jeu" pour recommencer</li>
+            </ul>
+          </article>
+
+          <article class="bg-white shadow-sm rounded-lg p-6">
+            <h2 class="text-xl font-semibold mb-4">
+              Progression des technologies
+            </h2>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="flex items-center gap-2">
+                <div
+                  class="w-8 h-8 rounded flex items-center justify-center tile-2"
+                >
+                  2
+                </div>
+                <span>HTML</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div
+                  class="w-8 h-8 rounded flex items-center justify-center tile-4"
+                >
+                  4
+                </div>
+                <span>CSS</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div
+                  class="w-8 h-8 rounded flex items-center justify-center tile-8"
+                >
+                  8
+                </div>
+                <span>JavaScript</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div
+                  class="w-8 h-8 rounded flex items-center justify-center tile-16"
+                >
+                  16
+                </div>
+                <span>Python</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div
+                  class="w-8 h-8 rounded flex items-center justify-center tile-32"
+                >
+                  32
+                </div>
+                <span>Java</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div
+                  class="w-8 h-8 rounded flex items-center justify-center tile-64"
+                >
+                  64
+                </div>
+                <span>React</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div
+                  class="w-8 h-8 rounded flex items-center justify-center tile-128"
+                >
+                  128
+                </div>
+                <span>Angular</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div
+                  class="w-8 h-8 rounded flex items-center justify-center tile-256"
+                >
+                  256
+                </div>
+                <span>Vue.js</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div
+                  class="w-8 h-8 rounded flex items-center justify-center tile-512"
+                >
+                  512
+                </div>
+                <span>Node.js</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div
+                  class="w-8 h-8 rounded flex items-center justify-center tile-1024"
+                >
+                  1024
+                </div>
+                <span>Docker</span>
+              </div>
+              <div class="flex items-center gap-2 col-span-2">
+                <div
+                  class="w-8 h-8 rounded flex items-center justify-center tile-2048"
+                >
+                  2048
+                </div>
+                <span>Full Stack</span>
+              </div>
+            </div>
+          </article>
+        </section>
+      </div>
+    </main>
+
+    <footer class="w-full bg-white shadow-sm py-6 px-6 mt-8">
+      <div
+        class="max-w-4xl mx-auto flex flex-col md:flex-row justify-between items-center text-sm text-gray-600"
+      >
+        <div class="mb-4 md:mb-0">
+          <p>2048 Dev Edition - Version 1.0.0</p>
+          <p>
+            Inspiré du jeu original
+            <a
+              href="https://play2048.co/"
+              class="text-primary hover:underline"
+              target="_blank"
+              >2048</a
+            >
+            par Gabriele Cirulli
+          </p>
+        </div>
+        <div class="flex gap-4">
+          <a href="#" class="text-primary hover:underline">Code Source</a>
+          <span>21 Mai 2025</span>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Constantes et variables du jeu
+        const GRID_SIZE = 4;
+        const CELL_COUNT = GRID_SIZE * GRID_SIZE;
+        let grid = [];
+        let score = 0;
+        let bestScore = localStorage.getItem("bestScore") || 0;
+        let gameOver = false;
+        let won = false;
+
+        // Éléments DOM
+        const gameGridElement = document.getElementById("game-grid");
+        const scoreElement = document.getElementById("score");
+        const bestScoreElement = document.getElementById("best-score");
+        const newGameButton = document.getElementById("new-game");
+        const themeToggle = document.getElementById("theme-toggle");
+        const soundToggle = document.getElementById("sound-toggle");
+        const volumeControl = document.getElementById("volume-control");
+
+        // Sons du jeu
+        const moveSound = new Audio(
+          "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=",
+        );
+        const mergeSound = new Audio(
+          "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=",
+        );
+        const gameOverSound = new Audio(
+          "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=",
+        );
+
+        // Correspondance des valeurs aux technologies
+        const techMap = {
+          2: { name: "HTML", icon: "ri-html5-line" },
+          4: { name: "CSS", icon: "ri-css3-line" },
+          8: { name: "JavaScript", icon: "ri-javascript-line" },
+          16: { name: "Python", icon: "ri-python-line" },
+          32: { name: "Java", icon: "ri-java-line" },
+          64: { name: "React", icon: "ri-reactjs-line" },
+          128: { name: "Angular", icon: "ri-angularjs-line" },
+          256: { name: "Vue.js", icon: "ri-vuejs-line" },
+          512: { name: "Node.js", icon: "ri-nodejs-line" },
+          1024: { name: "Docker", icon: "ri-docker-line" },
+          2048: { name: "Full Stack", icon: "ri-code-box-line" },
+        };
+
+        // Initialisation du jeu
+        function initGame() {
+          grid = Array(CELL_COUNT).fill(0);
+          score = 0;
+          gameOver = false;
+          won = false;
+          updateScore();
+          updateBestScore();
+
+          // Vider la grille
+          gameGridElement.innerHTML = "";
+
+          // Créer les cellules de la grille
+          for (let i = 0; i < CELL_COUNT; i++) {
+            const tile = document.createElement("article");
+            tile.className = "tile";
+            tile.id = `tile-${i}`;
+            gameGridElement.appendChild(tile);
+          }
+
+          // Ajouter deux tuiles initiales
+          addRandomTile();
+          addRandomTile();
+
+          // Mettre à jour l'affichage
+          updateGridDisplay();
+        }
+
+        // Ajouter une tuile aléatoire (2 ou 4)
+        function addRandomTile() {
+          // Trouver les cellules vides
+          const emptyCells = grid
+            .map((val, idx) => (val === 0 ? idx : -1))
+            .filter((idx) => idx !== -1);
+
+          if (emptyCells.length > 0) {
+            // Choisir une cellule vide aléatoirement
+            const randomIndex =
+              emptyCells[Math.floor(Math.random() * emptyCells.length)];
+
+            // 90% de chance d'avoir un 2, 10% de chance d'avoir un 4
+            grid[randomIndex] = Math.random() < 0.9 ? 2 : 4;
+
+            // Marquer la tuile comme nouvelle pour l'animation
+            const tile = document.getElementById(`tile-${randomIndex}`);
+            if (tile) {
+              tile.classList.add("tile-new");
+              setTimeout(() => {
+                tile.classList.remove("tile-new");
+              }, 200);
+            }
+          }
+        }
+
+        // Mettre à jour l'affichage de la grille
+        function updateGridDisplay() {
+          for (let i = 0; i < CELL_COUNT; i++) {
+            const tile = document.getElementById(`tile-${i}`);
+            const value = grid[i];
+
+            // Réinitialiser les classes
+            tile.className = "tile";
+            tile.innerHTML = "";
+
+            if (value > 0) {
+              // Ajouter la classe pour la couleur
+              tile.classList.add(`tile-${value}`);
+
+              // Créer le contenu de la tuile
+              const tech = techMap[value] || {
+                name: value.toString(),
+                icon: "ri-code-line",
+              };
+
+              // Ajouter l'icône
+              const iconElement = document.createElement("span");
+              iconElement.className = `${tech.icon} tile-icon`;
+              tile.appendChild(iconElement);
+
+              // Ajouter le texte
+              const labelElement = document.createElement("span");
+              labelElement.className = "tile-label";
+              labelElement.textContent = value;
+              tile.appendChild(labelElement);
+            }
+          }
+        }
+
+        // Mettre à jour le score
+        function updateScore() {
+          scoreElement.textContent = score;
+        }
+
+        // Mettre à jour le meilleur score
+        function updateBestScore() {
+          bestScoreElement.textContent = bestScore;
+        }
+
+        // Déplacer les tuiles dans une direction
+        function moveTiles(direction) {
+          if (gameOver) return false;
+
+          let moved = false;
+          const oldGrid = [...grid];
+
+          // Déterminer l'ordre de traitement des cellules en fonction de la direction
+          const traversals = getTraversals(direction);
+
+          // Pour chaque ligne/colonne
+          traversals.x.forEach((x) => {
+            traversals.y.forEach((y) => {
+              const cellIndex = x + y * GRID_SIZE;
+
+              if (grid[cellIndex] !== 0) {
+                const result = moveTile(cellIndex, direction);
+                if (result.moved) {
+                  moved = true;
+                }
+              }
+            });
+          });
+
+          // Si des tuiles ont bougé, ajouter une nouvelle tuile et vérifier la fin du jeu
+          if (moved) {
+            // Jouer le son de déplacement
+            if (soundToggle.checked) {
+              moveSound.volume = volumeControl.value / 100;
+              moveSound.play();
+            }
+
+            addRandomTile();
+            updateGridDisplay();
+            updateScore();
+
+            // Mettre à jour le meilleur score si nécessaire
+            if (score > bestScore) {
+              bestScore = score;
+              localStorage.setItem("bestScore", bestScore);
+              updateBestScore();
+            }
+
+            // Vérifier si le jeu est terminé
+            if (!canMove()) {
+              gameOver = true;
+              if (soundToggle.checked) {
+                gameOverSound.volume = volumeControl.value / 100;
+                gameOverSound.play();
+              }
+              alert("Game Over! Votre score final est de " + score);
+            }
+          }
+
+          return moved;
+        }
+
+        // Obtenir l'ordre de traitement des cellules en fonction de la direction
+        function getTraversals(direction) {
+          const traversals = { x: [], y: [] };
+
+          for (let i = 0; i < GRID_SIZE; i++) {
+            traversals.x.push(i);
+            traversals.y.push(i);
+          }
+
+          // Inverser l'ordre si nécessaire pour éviter les problèmes de fusion
+          if (direction === "right") traversals.x = traversals.x.reverse();
+          if (direction === "down") traversals.y = traversals.y.reverse();
+
+          return traversals;
+        }
+
+        // Déplacer une tuile dans une direction donnée
+        function moveTile(index, direction) {
+          const result = { moved: false, merged: false };
+
+          // Obtenir les coordonnées x et y à partir de l'index
+          const x = index % GRID_SIZE;
+          const y = Math.floor(index / GRID_SIZE);
+
+          // Déterminer le vecteur de déplacement
+          let vector = { x: 0, y: 0 };
+
+          switch (direction) {
+            case "up":
+              vector = { x: 0, y: -1 };
+              break;
+            case "right":
+              vector = { x: 1, y: 0 };
+              break;
+            case "down":
+              vector = { x: 0, y: 1 };
+              break;
+            case "left":
+              vector = { x: -1, y: 0 };
+              break;
+          }
+
+          // Trouver la position la plus éloignée possible
+          let newX = x;
+          let newY = y;
+          let nextX = newX + vector.x;
+          let nextY = newY + vector.y;
+
+          // Tant qu'on peut avancer
+          while (
+            isValidPosition(nextX, nextY) &&
+            grid[nextX + nextY * GRID_SIZE] === 0
+          ) {
+            newX = nextX;
+            newY = nextY;
+            nextX = newX + vector.x;
+            nextY = newY + vector.y;
+          }
+
+          // Vérifier si on peut fusionner avec la tuile suivante
+          if (
+            isValidPosition(nextX, nextY) &&
+            grid[nextX + nextY * GRID_SIZE] === grid[index]
+          ) {
+            // Fusion
+            const mergedValue = grid[index] * 2;
+            grid[nextX + nextY * GRID_SIZE] = mergedValue;
+            grid[index] = 0;
+
+            // Animer la fusion
+            const targetTile = document.getElementById(
+              `tile-${nextX + nextY * GRID_SIZE}`,
+            );
+            targetTile.classList.add("tile-merged");
+            setTimeout(() => {
+              targetTile.classList.remove("tile-merged");
+            }, 200);
+
+            // Jouer le son de fusion
+            if (soundToggle.checked) {
+              mergeSound.volume = volumeControl.value / 100;
+              mergeSound.play();
+            }
+
+            // Mettre à jour le score
+            score += mergedValue;
+
+            // Vérifier si le joueur a gagné
+            if (mergedValue === 2048 && !won) {
+              won = true;
+              setTimeout(() => {
+                alert("Félicitations! Vous avez atteint Full Stack (2048)!");
+              }, 500);
+            }
+
+            result.moved = true;
+            result.merged = true;
+          } else if (newX !== x || newY !== y) {
+            // Déplacement simple
+            grid[newX + newY * GRID_SIZE] = grid[index];
+            grid[index] = 0;
+            result.moved = true;
+          }
+
+          return result;
+        }
+
+        // Vérifier si une position est valide
+        function isValidPosition(x, y) {
+          return x >= 0 && x < GRID_SIZE && y >= 0 && y < GRID_SIZE;
+        }
+
+        // Vérifier si des mouvements sont encore possibles
+        function canMove() {
+          // S'il reste des cases vides
+          if (grid.some((cell) => cell === 0)) return true;
+
+          // Vérifier les fusions possibles horizontalement
+          for (let y = 0; y < GRID_SIZE; y++) {
+            for (let x = 0; x < GRID_SIZE - 1; x++) {
+              const index = x + y * GRID_SIZE;
+              if (grid[index] === grid[index + 1]) return true;
+            }
+          }
+
+          // Vérifier les fusions possibles verticalement
+          for (let x = 0; x < GRID_SIZE; x++) {
+            for (let y = 0; y < GRID_SIZE - 1; y++) {
+              const index = x + y * GRID_SIZE;
+              if (grid[index] === grid[index + GRID_SIZE]) return true;
+            }
+          }
+
+          // Aucun mouvement possible
+          return false;
+        }
+
+        // Gestionnaire d'événements pour les touches du clavier
+        function handleKeyDown(event) {
+          let direction = null;
+
+          switch (event.key) {
+            case "ArrowUp":
+            case "z":
+            case "Z":
+              direction = "up";
+              break;
+            case "ArrowRight":
+            case "d":
+            case "D":
+              direction = "right";
+              break;
+            case "ArrowDown":
+            case "s":
+            case "S":
+              direction = "down";
+              break;
+            case "ArrowLeft":
+            case "q":
+            case "Q":
+              direction = "left";
+              break;
+          }
+
+          if (direction) {
+            event.preventDefault();
+            moveTiles(direction);
+          }
+        }
+
+        // Variables pour la gestion du tactile
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        // Gestionnaire d'événements pour le début du toucher
+        function handleTouchStart(event) {
+          touchStartX = event.touches[0].clientX;
+          touchStartY = event.touches[0].clientY;
+        }
+
+        // Gestionnaire d'événements pour la fin du toucher
+        function handleTouchEnd(event) {
+          if (!touchStartX || !touchStartY) return;
+
+          const touchEndX = event.changedTouches[0].clientX;
+          const touchEndY = event.changedTouches[0].clientY;
+
+          const diffX = touchEndX - touchStartX;
+          const diffY = touchEndY - touchStartY;
+
+          // Déterminer la direction du swipe
+          if (Math.abs(diffX) > Math.abs(diffY)) {
+            // Swipe horizontal
+            if (Math.abs(diffX) > 20) {
+              // Seuil minimum pour considérer comme un swipe
+              if (diffX > 0) {
+                moveTiles("right");
+              } else {
+                moveTiles("left");
+              }
+            }
+          } else {
+            // Swipe vertical
+            if (Math.abs(diffY) > 20) {
+              // Seuil minimum pour considérer comme un swipe
+              if (diffY > 0) {
+                moveTiles("down");
+              } else {
+                moveTiles("up");
+              }
+            }
+          }
+
+          // Réinitialiser
+          touchStartX = 0;
+          touchStartY = 0;
+        }
+
+        // Gestionnaire d'événements pour le bouton Nouveau Jeu
+        function handleNewGame() {
+          initGame();
+        }
+
+        // Gestionnaire d'événements pour le bouton de thème
+        function handleThemeToggle() {
+          const body = document.body;
+          const isDark = body.classList.toggle("dark");
+
+          // Mettre à jour l'icône
+          const icon = themeToggle.querySelector("i");
+          if (isDark) {
+            icon.className = "ri-moon-line text-gray-300";
+          } else {
+            icon.className = "ri-sun-line text-gray-700";
+          }
+
+          // Sauvegarder la préférence
+          localStorage.setItem("darkMode", isDark);
+        }
+
+        // Charger la préférence de thème
+        function loadThemePreference() {
+          const isDark = localStorage.getItem("darkMode") === "true";
+          if (isDark) {
+            document.body.classList.add("dark");
+            themeToggle.querySelector("i").className = "ri-moon-line text-gray-300";
+          }
+        }
+
+        // Sauvegarder l'état du jeu
+        function saveGameState() {
+          const gameState = {
+            grid: grid,
+            score: score,
+            bestScore: bestScore,
+            gameOver: gameOver,
+            won: won,
+          };
+          localStorage.setItem("gameState", JSON.stringify(gameState));
+        }
+
+        // Charger l'état du jeu
+        function loadGameState() {
+          const savedState = localStorage.getItem("gameState");
+          if (savedState) {
+            const gameState = JSON.parse(savedState);
+            grid = gameState.grid;
+            score = gameState.score;
+            bestScore = gameState.bestScore;
+            gameOver = gameState.gameOver;
+            won = gameState.won;
+
+            updateScore();
+            updateBestScore();
+            updateGridDisplay();
+
+            return true;
+          }
+          return false;
+        }
+
+        // Initialiser les événements
+        function initEvents() {
+          document.addEventListener("keydown", handleKeyDown);
+          gameGridElement.addEventListener("touchstart", handleTouchStart, {
+            passive: true,
+          });
+          gameGridElement.addEventListener("touchend", handleTouchEnd);
+          newGameButton.addEventListener("click", handleNewGame);
+          themeToggle.addEventListener("click", handleThemeToggle);
+
+          // Sauvegarder l'état du jeu avant de quitter la page
+          window.addEventListener("beforeunload", saveGameState);
+
+          // Charger les préférences
+          loadThemePreference();
+
+          // Charger l'état du son
+          const soundEnabled = localStorage.getItem("soundEnabled") === "true";
+          soundToggle.checked = soundEnabled;
+
+          // Événement pour le son
+          soundToggle.addEventListener("change", function () {
+            localStorage.setItem("soundEnabled", this.checked);
+          });
+
+          // Événement pour le volume
+          volumeControl.addEventListener("input", function () {
+            localStorage.setItem("volume", this.value);
+          });
+
+          // Charger le volume
+          const savedVolume = localStorage.getItem("volume");
+          if (savedVolume) {
+            volumeControl.value = savedVolume;
+          }
+        }
+
+        // Initialiser le jeu
+        initEvents();
+
+        // Charger l'état du jeu ou commencer une nouvelle partie
+        if (!loadGameState()) {
+          initGame();
+        }
+      });
+    </script>
+  </body>
+</html>
