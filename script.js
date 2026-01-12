@@ -23,7 +23,27 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+// --- ANIMATION SCROLL TIMELINE ---
+    const timelineItems = document.querySelectorAll('.timeline-item');
 
+    const checkTimeline = () => {
+        const triggerBottom = window.innerHeight / 5 * 4; // Déclenchement quand l'élément est à 80% du bas
+
+        timelineItems.forEach(item => {
+            const itemTop = item.getBoundingClientRect().top;
+
+            if (itemTop < triggerBottom) {
+                item.classList.add('show');
+            } else {
+                // Optionnel : Enlever la classe si on veut que ça redisparaisse en remontant
+                // item.classList.remove('show'); 
+            }
+        });
+    };
+
+    // Vérifier au chargement + au scroll
+    window.addEventListener('scroll', checkTimeline);
+    checkTimeline();
     // --- DONNÉES PROJETS (STAR) ---
     // Tu peux remplir ça avec tes vraies infos
     const projectsData = {
@@ -190,6 +210,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 <strong>Tâche :</strong> Créer des notes de cadrages, prévoir le coût du projet avec un budget, les mains d'oeuvres...<br><br>
                 <strong>Action :</strong> Création de notes de cadrages, diagramme gantt, calcul des charges.<br><br>
                 <strong>Compétences acquises :</strong> Utilisation de gantt, gestion d'un projet.
+            `
+        },
+        'proj18': {
+            title: "Anime Predictor",
+            context: "Projet scolaire (2 personnes) - 2025",
+            desc: "Prédire la popularité d'un animé",
+            star: `
+                <strong>Situation :</strong> Prédire la popularité d'un animé.<br><br>
+                <strong>Tâche :</strong> Créer un programme qui prédit la note d'un animé à partir de ses caractéristiques de productions.<br><br>
+                <strong>Action :</strong> Implémentation de csv dans un dataframe, création de graphiques d'analyse des données.<br><br>
+                <strong>Compétences acquises :</strong> Code en pythin (pandas, matplotlib, tkinter, seaborn...)
             `
         },
     };

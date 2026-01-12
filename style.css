@@ -77,12 +77,266 @@ ul { list-style: none; }
 }
 
 /* --- TIMELINE --- */
-#formation { padding: 80px 10%; }
-.timeline { max-width: 800px; margin: 0 auto; border-left: 2px solid var(--card-bg); padding-left: 30px; }
-.timeline-item { margin-bottom: 40px; position: relative; }
-.timeline-item::before { content: ''; position: absolute; left: -36px; top: 5px; width: 14px; height: 14px; background: var(--primary); border-radius: 50%; }
-.date { color: var(--secondary); font-weight: 600; font-size: 0.9rem; }
-.place { font-style: italic; color: var(--text-muted); font-size: 0.9rem; }
+/* --- TIMELINE DYNAMIQUE --- */
+#formation {
+    padding: 80px 10%;
+    overflow: hidden; /* Pour éviter les scrollbars horizontales lors des animations */
+}
+
+.timeline {
+    position: relative;
+    max-width: 1000px;
+    margin: 40px auto;
+}
+
+/* La ligne centrale (Néon) */
+.timeline::after {
+    content: '';
+    position: absolute;
+    width: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    margin-left: -2px;
+    border-radius: 2px;
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.2);
+}
+
+.timeline-item {
+    padding: 10px 40px;
+    position: relative;
+    background-color: inherit;
+    width: 50%;
+    opacity: 0; /* Caché par défaut pour l'animation JS */
+    transform: translateY(50px);
+    transition: all 0.6s ease-out;
+}
+
+/* Éléments à Gauche (Impairs) */
+.timeline-item:nth-child(odd) {
+    left: 0;
+    text-align: right; /* Texte aligné vers la ligne centrale */
+}
+
+/* Éléments à Droite (Pairs) */
+.timeline-item:nth-child(even) {
+    left: 50%;
+    text-align: left;
+}
+
+/* Le point central */
+.timeline-dot {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: var(--bg-color);
+    border: 3px solid var(--primary);
+    top: 25px; /* Ajuster selon la hauteur de la carte */
+    border-radius: 50%;
+    z-index: 10;
+    right: -10px; /* Pour ceux de gauche */
+    box-shadow: 0 0 10px var(--primary);
+    transition: 0.3s;
+}
+
+.timeline-item:nth-child(even) .timeline-dot {
+    left: -10px; /* Pour ceux de droite */
+}
+
+/* Effet Hover sur le point */
+.timeline-item:hover .timeline-dot {
+    background: var(--primary);
+    box-shadow: 0 0 20px var(--primary);
+}
+
+/* La Date (affichée au dessus ou à côté) */
+.timeline-date {
+    position: absolute;
+    top: 25px;
+    font-weight: 700;
+    color: var(--secondary);
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+}
+
+.timeline-item:nth-child(odd) .timeline-date {
+    right: -130px; /* Date à droite de la ligne pour items de gauche */
+    text-align: left;
+    width: 100px;
+}
+
+.timeline-item:nth-child(even) .timeline-date {
+    left: -130px; /* Date à gauche de la ligne pour items de droite */
+    text-align: right;
+    width: 100px;
+}
+
+/* Le contenu (La carte) */
+.timeline-content {
+    padding: 25px;
+    background: var(--card-bg);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    position: relative;
+    transition: 0.3s;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.timeline-item:hover .timeline-content {
+    transform: translateY(-5px);
+    border-color: var(--primary);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+.timeline-content h3 {
+    font-size: 1.2rem;
+    color: white;
+    margin: 10px 0 5px 0;
+}
+
+.timeline-content .place {
+    font-style: italic;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    display: block;
+    margin-bottom: 15px;
+}
+
+.timeline-content p {
+    font-size: 0.95rem;
+    color: #cbd5e1;
+    line-height: 1.5;
+}
+
+.icon-box {
+    font-size: 1.5rem;
+    color: var(--primary);
+    margin-bottom: 10px;
+}
+
+/* Classe active pour l'animation JS */
+.timeline-item.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* --- SECTION SOFT SKILLS --- */
+.soft-skills-section {
+    padding: 80px 10%;
+    background: #0b1120;
+}
+
+.skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    margin-top: 30px;
+}
+
+.skill-box {
+    background: var(--card-bg);
+    padding: 25px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: 0.3s;
+}
+
+.skill-box:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+.skill-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.skill-header i {
+    font-size: 1.8rem;
+    color: var(--secondary); /* Couleur Cyan */
+    background: rgba(14, 165, 233, 0.1);
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.skill-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: white;
+}
+
+.skill-box p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 20px;
+    min-height: 60px; /* Pour aligner les barres */
+}
+
+/* Barre de progression style "Jauge" */
+.skill-bar-container {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.skill-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--secondary), var(--primary));
+    border-radius: 10px;
+    position: relative;
+}
+
+/* Petite animation brillante sur la barre */
+.skill-bar::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; bottom: 0; right: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    transform: translateX(-100%);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    100% { transform: translateX(100%); }
+}
+
+/* --- RESPONSIVE MOBILE --- */
+@media screen and (max-width: 768px) {
+    .timeline::after { left: 31px; } /* Ligne déplacée à gauche */
+    
+    .timeline-item {
+        width: 100%;
+        padding-left: 70px; /* Espace pour la ligne */
+        padding-right: 25px;
+        text-align: left !important; /* Force l'alignement gauche partout */
+    }
+    
+    .timeline-item:nth-child(even) { left: 0; } /* Annule le décalage 50% */
+    
+    .timeline-dot {
+        left: 21px !important; /* Point aligné sur la ligne à gauche */
+        right: auto;
+    }
+    
+    .timeline-date {
+        position: relative;
+        top: 0;
+        left: 0 !important;
+        right: auto !important;
+        width: 100%;
+        margin-bottom: 5px;
+        text-align: left !important;
+        display: block;
+    }
+}
+
 
 /* --- COMPETENCES (GRID & INTERACTIVE) --- */
 #competences { padding: 80px 10%; background: #0f1623; }
