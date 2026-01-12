@@ -160,6 +160,7 @@ ul { list-style: none; }
     letter-spacing: 1px;
 }
 
+
 .timeline-item:nth-child(odd) .timeline-date {
     right: -130px; /* Date à droite de la ligne pour items de gauche */
     text-align: left;
@@ -403,7 +404,10 @@ ul { list-style: none; }
 .tags span { font-size: 0.75rem; background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 4px; color: var(--text-muted); }
 
 .card-actions { display: flex; justify-content: space-between; align-items: center; }
-.btn-detail { background: none; border: none; color: var(--text-main); text-decoration: underline; cursor: pointer; }
+.btn-detail { background: none; border: none; font-weight: 700;
+    color: var(--secondary);
+    font-size: 0.9rem;
+    letter-spacing: 1px; text-decoration: none; cursor: pointer; }
 .btn-link { padding: 8px 16px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; }
 .btn-link.github { background: #24292e; color: white; }
 .btn-link.web { background: var(--secondary); color: white; }
