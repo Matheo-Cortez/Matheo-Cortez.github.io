@@ -28,7 +28,7 @@
             <span class="tag">Étudiant BUT Informatique - Parcours C</span>
             <h1>Mathéo Cortez</h1>
             <h2>Développeur Fullstack <span class="highlight">& Data</span></h2>
-            <p>20 ans. Je conçois des architectures web performantes et j'optimise le traitement des données.</p>
+            <p>20 ans. Je développe des applications web et logicielles, ainsi que des analyses de datas.</p>
             <div class="hero-btns">
                 <a href="#contact" class="btn btn-primary">Me contacter</a>
                 <a href="assets/CV_Cortez_Matheo.pdf" target="_blank" class="btn btn-outline">Voir mon CV</a>
@@ -569,10 +569,16 @@
                     </div>
                 </div>
             </div>
-            <form class="contact-form">
-                <input type="text" placeholder="Nom" required>
-                <input type="email" placeholder="Email" required>
-                <textarea placeholder="Votre message..." rows="5" required></textarea>
+            <form action="https://formsubmit.co/matheocrtz2005@gmail.com" method="POST" class="contact-form">
+    
+                <input type="hidden" name="_captcha" value="false">
+                <input type="hidden" name="_next" value="http://ton-site-internet.com/#contact">
+                <input type="hidden" name="_subject" value="Nouveau contact depuis le Portfolio !">
+
+                <input type="text" name="nom" placeholder="Nom" required>
+                <input type="email" name="email" placeholder="Email" required>
+                <textarea name="message" placeholder="Votre message..." rows="5" required></textarea>
+                
                 <button type="submit" class="btn btn-primary">Envoyer</button>
             </form>
         </div>
